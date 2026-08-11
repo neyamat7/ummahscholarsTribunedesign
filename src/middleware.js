@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
 
-const isLoggedin = false ;
-const middleware = (request) => {
-
-//  console.log('this is middleware 2')
-if (!isLoggedin) {
-
-  return NextResponse.redirect(new URL ('/home',request.url))
+export function middleware(request) {
+  return NextResponse.next();
 }
-
-}
-
-export default middleware;
-
 
 export const config = {
-  matcher: ['/about/:path*']
-}
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};

@@ -3,37 +3,37 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { t, isRtl } = useLanguage();
 
-  // আপনার লোগোর সোনালী থিমের সাথে মিলিয়ে কালার প্যালেট
-  const goldColor = "#C5A059";      // Primary Rich Gold
-  const goldHover = "#A37F3D";      // Deep Gold for Hover
-  const textColor = "#1A1A1A";      // Dark Slate for readability
+  const goldColor = "#C5A059";
+  const textColor = "#1A1A1A";
 
   const menuItems = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
-    { name: "News & Announcements", path: "/news" },
-    { name: "Research & Studies", path: "/research" },
-    { name: "Opinions & Perspectives", path: "/opinions" },
-    { name: "Events & Initiatives", path: "/events" },
-    { name: "Contact", path: "/contact" },
+    { name: t('nav.home'), path: "/" },
+    { name: t('nav.about'), path: "/about" },
+    { name: t('nav.news'), path: "/news" },
+    { name: t('nav.research'), path: "/research" },
+    { name: t('nav.opinions'), path: "/opinions" },
+    { name: t('nav.events'), path: "/events" },
+    { name: t('nav.contact'), path: "/contact" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b shadow-sm" style={{ borderColor: `${goldColor}33` }}>
+    <nav className="sticky top-0 z-50 bg-white border-b shadow-xs" style={{ borderColor: `${goldColor}33` }}>
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-10">
         <div className="flex justify-between items-center h-20">
           
-          {/* লোগো সেকশন */}
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div 
               className="relative w-12 h-12 rounded-full overflow-hidden border-2 transition-transform duration-300 group-hover:scale-105"
               style={{ borderColor: goldColor, boxShadow: `0 0 10px ${goldColor}33` }}
             >
-              {/* WhatsApp Image 2026-06-28 at 1.10.27 AM.jpg কে logo.jpg নামে public ফোল্ডারে রাখবেন */}
               <Image 
                 src="/logo.jpeg" 
                 alt="Ummah Scholars Tribune Logo" 
@@ -47,65 +47,51 @@ export default function Navbar() {
                 className="font-serif font-bold text-sm sm:text-base tracking-wide leading-none transition-colors"
                 style={{ color: textColor }}
               >
-                UMMAH SCHOLARS
+                {t('site.title')}
               </span>
               <span 
                 className="font-serif text-[10px] sm:text-xs tracking-widest font-medium uppercase mt-0.5"
                 style={{ color: goldColor }}
               >
-                TRIBUNE
+                {isRtl ? "تريبون" : "TRIBUNE"}
               </span>
             </div>
           </Link>
 
-          {/* ডেস্কটপ মেনু */}
+          {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-6">
             {menuItems.map((item, index) => (
               <Link 
                 key={index} 
                 href={item.path}
-                className="text-[15px] font-medium transition-all duration-200 relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:transition-all after:duration-300 hover:after:w-full"
-                style={{ 
-                  color: textColor,
-                  '--hover-color': goldColor 
-                }}
-                onMouseEnter={(e) => e.target.style.color = goldColor}
-                onMouseLeave={(e) => e.target.style.color = textColor}
+                className="text-[15px] font-medium transition-all duration-200 relative py-1 hover:opacity-80"
+                style={{ color: textColor }}
               >
                 {item.name}
-                <span 
-                  className="absolute bottom-0 left-0 w-0 h-[2px] transition-all duration-300 group-hover:w-full"
-                  style={{ backgroundColor: goldColor }}
-                />
               </Link>
             ))}
           </div>
 
-          {/* ডানদিকের অ্যাকশন বাটন */}
-          <div className="hidden lg:block">
+          {/* Right Action & Language Switcher */}
+          <div className="hidden lg:flex items-center gap-4">
+            <LanguageSwitcher />
+
             <Link 
               href="/subscribe"
-              className="px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 shadow-sm hover:shadow"
+              className="px-5 py-2 rounded-full font-medium text-sm transition-all duration-300 shadow-2xs hover:shadow-xs"
               style={{ 
-                backgroundColor: 'transparent',
-                color: goldColor,
-                border: `1.5px solid ${goldColor}`,
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = goldColor;
-                e.target.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-                e.target.style.color = goldColor;
+                backgroundColor: goldColor,
+                color: '#ffffff',
               }}
             >
-              Subscribe
+              {t('nav.subscribe')}
             </Link>
           </div>
 
-          {/* মোবাইল মেনু বাটন (Hamburger) */}
-          <div className="lg:hidden">
+          {/* Mobile Hamburger & Lang Switcher */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <LanguageSwitcher />
+
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-md transition-colors focus:outline-none"
@@ -124,7 +110,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* মোবাইল ড্রপডাউন মেনু */}
+      {/* Mobile Menu */}
       {isOpen && (
         <div className="lg:hidden bg-white border-t transition-all duration-300" style={{ borderColor: `${goldColor}22` }}>
           <div className="px-4 pt-3 pb-6 space-y-2">
@@ -135,14 +121,6 @@ export default function Navbar() {
                 className="block px-3 py-2.5 rounded-md text-base font-medium transition-colors"
                 style={{ color: textColor }}
                 onClick={() => setIsOpen(false)}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = `${goldColor}11`;
-                  e.target.style.color = goldColor;
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
-                  e.target.style.color = textColor;
-                }}
               >
                 {item.name}
               </Link>
@@ -157,7 +135,7 @@ export default function Navbar() {
                 }}
                 onClick={() => setIsOpen(false)}
               >
-                Subscribe
+                {t('nav.subscribe')}
               </Link>
             </div>
           </div>

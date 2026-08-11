@@ -1,0 +1,28 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "news": "News & Announcements",
+    "research": "Research & Studies",
+    "opinions": "Opinions & Perspectives",
+    "events": "Events & Initiatives",
+    "contact": "Contact",
+    "subscribe": "Subscribe"
+  },
+  "site": {
+    "title": "UMMAH SCHOLARS TRIBUNE",
+    "subtitle": "Voice of Intellectual & Classical Scholarship",
+    "latestNews": "Latest News & Announcements",
+    "readMore": "Read Full Article",
+    "trending": "Trending & Popular",
+    "viewAll": "View All Articles",
+    "search": "Search articles...",
+    "language": "Language",
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "tagline": "Empowering scholars and readers worldwide with classical legal scholarship and modern perspectives."
+  }
+}
