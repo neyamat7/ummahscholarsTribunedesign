@@ -15,14 +15,21 @@
     "latestNews": "Latest News & Announcements",
     "readMore": "Read Full Article",
     "trending": "Trending & Popular",
-    "viewAll": "View All Articles",
+    "viewAll": "View All",
     "search": "Search articles...",
     "language": "Language",
     "english": "English",
-    "arabic": "العربية"
+    "arabic": "العربية",
+    "upcomingEvents": "Upcoming Events",
+    "viewAllEvents": "View All Events",
+    "noUpcomingEvents": "No upcoming events at the moment — check back soon",
+    "online": "Online Event",
+    "inPerson": "In Person"
   },
   "footer": {
     "rights": "All rights reserved.",
-    "tagline": "Empowering scholars and readers worldwide with classical legal scholarship and modern perspectives."
+    "tagline": "Empowering scholars and readers worldwide with classical legal scholarship, authentic research, and contemporary Islamic perspectives.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
   }
 }

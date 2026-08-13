@@ -1,33 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import HeroSlider from "@/components/HeroSlider";
 import KeyApplications from "@/components/KeyApplications";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import SliderSwiper from "@/components/SliderSwiper";
-import ResearchFeatures from "../components/ResearchFeatures";
+import ResearchFeatures from "@/components/ResearchFeatures";
+import UpcomingEvents from "@/components/UpcomingEvents";
+import CategoryShowcase from "@/components/CategoryShowcase";
+import OpinionsSection from "@/components/OpinionsSection";
+import NewsSection from "@/components/NewsSection";
+import LatestBlogsSection from "@/components/LatestBlogsSection";
+import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
+import { Mail } from "lucide-react";
+import { fadeUp, staggerContainer } from "@/lib/animations";
 
 export default function Home() {
-  const { locale, isRtl, t } = useLanguage();
+  const { isRtl, t } = useLanguage();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const res = await fetch('http://localhost:3000/api/v1/posts');
+        const res = await fetch("http://localhost:3000/api/v1/posts");
         if (res.ok) {
           const data = await res.json();
-          // Adjust for NestJS paginated or array response
-          const items = Array.isArray(data) ? data : (data.data || []);
+          const items = Array.isArray(data) ? data : data.data || [];
           if (items.length > 0) {
             setPosts(items);
           }
         }
       } catch (err) {
-        // Handle error silently or fall back to default demo articles
+        // Fallback default demo articles
       } finally {
         setLoading(false);
       }
@@ -35,172 +42,293 @@ export default function Home() {
     fetchPosts();
   }, []);
 
-  // Demo fallback articles if backend database is empty or starting up
-  const fallbackNews = [
+  // Demo fallback articles categorized for preview
+  const fallbackResearch = [
     {
-      id: 1,
+      id: 101,
       titleEn: "Global Classical Legal Systems & Jurisprudence Reform",
       titleAr: "الأنظمة القانونية الكلاسيكية وإصلاح الفقه الإسلامي المعاصر",
       excerptEn: "The study of jurisprudence in classical scholarship offers crucial insights into modern governance and ethical frameworks.",
       excerptAr: "تقدم دراسة الفقه في المنح الدراسية الكلاسيكية رؤى حاسمة للحوكمة الحديثة والأطر الأخلاقية.",
-      category: "Research",
+      category: { nameEn: "Research & Studies", nameAr: "البحوث والدراسات" },
       date: "August 11, 2026",
       image: "/news/news1.avif",
     },
     {
-      id: 2,
-      titleEn: "New Comparative Analysis Published on Ethical Governance",
-      titleAr: "نشر تحليل مقارن جديد حول الحوكمة الأخلاقية والإصلاح التشريعي",
-      excerptEn: "By examining historical treatises, scholars discern patterns of continuity and adaptation across generations.",
-      excerptAr: "من خلال فحص الرسائل التاريخية، يميز العلماء أنماط استمرارية التكيف عبر الأجيال.",
-      category: "Publication",
-      date: "August 09, 2026",
+      id: 102,
+      titleEn: "Methodological Paradigms in Comparative Usul al-Fiqh",
+      titleAr: "النماذج المنهجية في أصول الفقه المقارن",
+      excerptEn: "An analytical examination of textual extrapolation and contextual reasoning across classical legal schools.",
+      excerptAr: "فحص تحليلي للاستنباط النصي والاستدلال السياقي عبر المدارس القانونية الكلاسيكية.",
+      category: { nameEn: "Research & Studies", nameAr: "البحوث والدراسات" },
+      date: "August 08, 2026",
       image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop&q=80",
     },
     {
-      id: 3,
-      titleEn: "International Islamic Governance Conference Concludes",
-      titleAr: "اختتام المؤتمر الدولي للحوكمة الإسلامية والفكر المعاصر",
-      excerptEn: "Prominent scholars gathered to discuss legal methodologies and contemporary jurisprudence challenges.",
-      excerptAr: "اجتمع كبار العلماء لمناقشة المناهج القانونية وتحديات الفقه المعاصر.",
-      category: "Conference",
-      date: "August 05, 2026",
+      id: 103,
+      titleEn: "Ethical Dimensions of Artificial Intelligence in Shariah Discourse",
+      titleAr: "الأبعاد الأخلاقية للذكاء الاصطناعي في الخطاب الشرعي",
+      excerptEn: "Evaluating contemporary technological advancements through traditional ethical and legal maxims.",
+      excerptAr: "تقييم التطورات التكنولوجية المعاصرة من خلال القواعد الأخلاقية والقانونية التقليدية.",
+      category: { nameEn: "Research & Studies", nameAr: "البحوث والدراسات" },
+      date: "August 04, 2026",
       image: "/news/news1.avif",
-    }
+    },
+    {
+      id: 104,
+      titleEn: "Institutional Governance & Endowments (Waqf) in Classical Law",
+      titleAr: "الحوكمة المؤسسية والأوقاف الإسلامية في القانون الكلاسيكي",
+      excerptEn: "Exploring the economic and legal frameworks of Waqf institutions in historical and modern societies.",
+      excerptAr: "استكشاف الأطر الاقتصادية والقانونية لمؤسسات الوقف في المجتمعات التاريخية والمعاصرة.",
+      category: { nameEn: "Research & Studies", nameAr: "البحوث والدراسات" },
+      date: "August 01, 2026",
+      image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop&q=80",
+    },
   ];
 
-  const displayList = posts.length > 0 ? posts : fallbackNews;
+  const fallbackOpinions = [
+    {
+      id: 201,
+      titleEn: "Preserving Intellectual Clarity Amidst Global Complexity",
+      titleAr: "الحفاظ على الوضوح الفكري وسط التعقيد العالمي",
+      excerptEn: "Knowledge is the preservation of clarity amidst complexity — commentary on contemporary scholarly responsibility.",
+      excerptAr: "المعرفة هي حفظ الوضوح في التعقيد — تعليق على المسؤولية العلمية المعاصرة.",
+      category: { nameEn: "Opinions & Perspectives", nameAr: "الآراء ووجهات النظر" },
+      date: "August 10, 2026",
+      image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop&q=80",
+    },
+    {
+      id: 202,
+      titleEn: "The Scholar's Role in Civilizational Renewal",
+      titleAr: "دور العالم في التجديد الحضاري والأخلاقي",
+      excerptEn: "How classical scholars navigated periods of transformation and maintained societal trust.",
+      excerptAr: "كيف وجه العلماء الكلاسيكيون فترات التحول وحافظوا على الثقة المجتمعية.",
+      category: { nameEn: "Opinions & Perspectives", nameAr: "الآراء ووجهات النظر" },
+      date: "August 06, 2026",
+      image: "/news/news1.avif",
+    },
+    {
+      id: 203,
+      titleEn: "Fostering Ethical Governance in Public Institutions",
+      titleAr: "تعزيز الحوكمة الأخلاقية في المؤسسات العامة",
+      excerptEn: "Perspectives on applying Islamic ethical principles to modern institutional frameworks.",
+      excerptAr: "وجهات نظر حول تطبيق المبادئ الأخلاقية الإسلامية على الأطر المؤسسية الحديثة.",
+      category: { nameEn: "Opinions & Perspectives", nameAr: "الآراء ووجهات النظر" },
+      date: "August 02, 2026",
+      image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop&q=80",
+    },
+  ];
+
+  const fallbackNews = [
+    {
+      id: 301,
+      titleEn: "International Islamic Governance Conference Concludes in Cairo",
+      titleAr: "اختتام المؤتمر الدولي للحوكمة الإسلامية والفكر المعاصر بالقاهرة",
+      excerptEn: "Prominent scholars gathered to discuss legal methodologies and contemporary jurisprudence challenges.",
+      excerptAr: "اجتمع كبار العلماء لمناقشة المناهج القانونية وتحديات الفقه المعاصر.",
+      category: { nameEn: "News & Announcements", nameAr: "الأخبار والإعلانات" },
+      date: "August 09, 2026",
+      image: "/news/news1.avif",
+    },
+    {
+      id: 302,
+      titleEn: "New Comparative Analysis Published on Legislative Reform",
+      titleAr: "نشر تحليل مقارن جديد حول الإصلاح التشريعي",
+      excerptEn: "By examining historical treatises, scholars discern patterns of continuity and adaptation across generations.",
+      excerptAr: "من خلال فحص الرسائل التاريخية، يميز العلماء أنماط استمرارية التكيف عبر الأجيال.",
+      category: { nameEn: "News & Announcements", nameAr: "الأخبار والإعلانات" },
+      date: "August 05, 2026",
+      image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop&q=80",
+    },
+    {
+      id: 303,
+      titleEn: "Tribune Launches Global Fellowship Program for Young Researchers",
+      titleAr: "المنبر يطلق برنامج الزمالة العالمي للباحثين الشباب",
+      excerptEn: "Supporting academic research and scholarship in classical jurisprudence and contemporary legal studies.",
+      excerptAr: "دعم البحث العلمي والمنح الدراسية في الفقه الكلاسيكي والدراسات القانونية المعاصرة.",
+      category: { nameEn: "News & Announcements", nameAr: "الأخبار والإعلانات" },
+      date: "August 01, 2026",
+      image: "/news/news1.avif",
+    },
+    {
+      id: 304,
+      titleEn: "Annual Academic Publishing & Research Grant Applications Open",
+      titleAr: "فتح باب التقدم لمنح النشر الأكاديمي والبحث العلمي السنوية",
+      excerptEn: "Scholars are invited to submit original manuscripts for upcoming peer-reviewed monographs.",
+      excerptAr: "دعوة الباحثين لتقديم مخطوطاتهم الأصلية للسلسلة العلمية المحكّمة القادمة.",
+      category: { nameEn: "News & Announcements", nameAr: "الأخبار والإعلانات" },
+      date: "July 28, 2026",
+      image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop&q=80",
+    },
+  ];
+
+  const researchPosts = useMemo(() => {
+    if (posts.length === 0) return fallbackResearch;
+    const filtered = posts.filter(
+      (p) =>
+        p.category?.slug === "research-studies" ||
+        p.category?.nameEn?.toLowerCase().includes("research") ||
+        p.category === "Research"
+    );
+    return filtered.length >= 4 ? filtered : [...filtered, ...fallbackResearch].slice(0, 4);
+  }, [posts]);
+
+  const opinionPosts = useMemo(() => {
+    if (posts.length === 0) return fallbackOpinions;
+    return posts.filter(
+      (p) =>
+        p.category?.slug === "opinions-perspectives" ||
+        p.category?.nameEn?.toLowerCase().includes("opinion") ||
+        p.category === "Opinions"
+    );
+  }, [posts]);
+
+  const newsPosts = useMemo(() => {
+    if (posts.length === 0) return fallbackNews;
+    return posts.filter(
+      (p) =>
+        p.category?.slug === "news-announcements" ||
+        p.category?.nameEn?.toLowerCase().includes("news") ||
+        p.category === "News"
+    );
+  }, [posts]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100"> 
-      {/* Navbar Header */}
+    <div className="min-h-screen bg-[#F7F4EE] dark:bg-[#0F0D0B] text-[#1C1917] dark:text-[#F5F1E8] font-sans antialiased transition-colors overflow-x-clip">
+      {/* 1. Sticky 3-Zone Navigation Bar */}
       <Navbar />
+
+      {/* 2. Asymmetric Editorial Hero Banner */}
       <HeroSlider />
 
-      <div className="text-center max-w-4xl mx-auto px-4 space-y-4 z-10 mt-8 mb-3">
-        <h1 className="text-xl lg:text-4xl font-bold font-serif text-black dark:text-white">
-          <span className="italic text-[#C5A059]">
-            {isRtl ? "منبر علماء الأمة" : "Ummah Scholars Tribune"}
+      {/* 3. Sub-Hero Title & Tagline Block */}
+      <section className="py-12 bg-[#F7F4EE] dark:bg-[#0F0D0B]">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={fadeUp}
+          className="text-center max-w-4xl mx-auto px-4 space-y-3"
+        >
+          <span className="text-xs font-bold uppercase tracking-widest text-[#B88A2B] dark:text-[#C5A059] block">
+            {isRtl ? "المنصة العالمية الأصيلة" : "Authentic Global Platform"}
           </span>
-        </h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 font-serif">
-          {t('site.subtitle')}
-        </p>
-      </div>
-
-      <div className="flex flex-col-reverse lg:flex-row items-center justify-center max-w-[1300px] mx-auto px-2 py-2 md:py-4">
-        <KeyApplications />
-        <SliderSwiper />
-      </div>
-
-      <ResearchFeatures />
-
-      {/* Main Articles Section */}
-      <section className="max-w-7xl mx-auto px-5 py-12">
-        <div className="flex items-center justify-between mb-8 pb-3 border-b border-neutral-200 dark:border-neutral-800">
-          <h2 className="text-2xl font-bold font-serif text-neutral-900 dark:text-white">
-            {t('site.latestNews')}
+          <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8] tracking-tight">
+            <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
+              {isRtl ? "منبر علماء الأمة" : "Ummah Scholars Tribune"}
+            </span>
           </h2>
-          <span className="text-xs font-semibold text-[#C5A059]">
-            {t('site.viewAll')}
-          </span>
-        </div>
+          <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#A39B8B] font-serif max-w-xl mx-auto leading-relaxed">
+            {t("site.subtitle")}
+          </p>
+        </motion.div>
+      </section>
 
-        <div className="grid lg:grid-cols-3 gap-10">
-          {/* Left Grid */}
-          <div className="lg:col-span-2">
-            <div className="grid md:grid-cols-2 gap-8">
-              {displayList.map((item) => {
-                const title = isRtl 
-                  ? (item.titleAr || item.titleEn || item.title) 
-                  : (item.titleEn || item.titleAr || item.title);
-
-                const excerpt = isRtl 
-                  ? (item.excerptAr || item.excerptEn || item.excerpt) 
-                  : (item.excerptEn || item.excerptAr || item.excerpt);
-
-                return (
-                  <div
-                    key={item.id}
-                    className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xs hover:shadow-md duration-300 overflow-hidden flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="relative w-full h-52 overflow-hidden bg-neutral-100">
-                        <Image
-                          src={item.featuredImageUrl || item.image || "/news/news1.avif"}
-                          width={500}
-                          height={350}
-                          alt={title || "Article Image"}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-
-                      <div className="p-6">
-                        <span className="text-xs font-bold uppercase tracking-wider text-[#C5A059]">
-                          {item.category?.nameEn || item.category || "Research"}
-                        </span>
-
-                        <h3 className="text-lg font-bold mt-2 text-neutral-900 dark:text-white hover:text-[#C5A059] cursor-pointer line-clamp-2 leading-snug">
-                          {title}
-                        </h3>
-
-                        <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-xs line-clamp-3 leading-relaxed">
-                          {excerpt}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="px-6 pb-6 pt-0 flex items-center justify-between text-xs border-t border-neutral-100 dark:border-neutral-800/60 mt-4">
-                      <span className="text-neutral-400">
-                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : (item.date || "2026")}
-                      </span>
-
-                      <button className="text-[#C5A059] font-bold hover:underline">
-                        {t('site.readMore')} →
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <aside className="space-y-6">
-            {/* Search */}
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 shadow-xs">
-              <h3 className="font-bold font-serif text-lg mb-4 text-neutral-900 dark:text-white">
-                {t('site.search')}
-              </h3>
-
-              <input
-                className="w-full border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3 text-xs outline-none focus:ring-1 focus:ring-[#C5A059]"
-                placeholder={t('site.search')}
-              />
-            </div>
-
-            {/* Newsletter */}
-            <div className="bg-neutral-900 text-white rounded-xl p-6 shadow-md border border-neutral-800">
-              <h3 className="text-xl font-bold font-serif text-[#C5A059]">
-                {t('nav.subscribe')}
-              </h3>
-
-              <p className="text-neutral-300 mt-2 text-xs leading-relaxed">
-                {t('footer.tagline')}
-              </p>
-
-              <input
-                className="mt-4 w-full rounded-lg p-2.5 text-xs text-black bg-white focus:outline-none"
-                placeholder="Email Address"
-              />
-
-              <button className="w-full mt-3 bg-[#C5A059] text-white py-2.5 rounded-lg text-xs font-bold hover:bg-[#A37F3D] duration-300">
-                {t('nav.subscribe')}
-              </button>
-            </div>
-          </aside>
+      {/* 4. Bilingual Mission Statement & Video Carousel Row */}
+      <section className="max-w-7xl mx-auto px-5 py-6">
+        <div className="flex flex-col lg:flex-row items-stretch justify-center gap-6">
+          <KeyApplications />
+          <SliderSwiper />
         </div>
       </section>
+
+      {/* 5. Academic Pillars Bento Grid */}
+      <ResearchFeatures />
+
+      {/* 6. Upcoming Events Preview Strip */}
+      <UpcomingEvents />
+
+      {/* 7. Pin-Scrubbed Category Showcase (Research & Studies) */}
+      <CategoryShowcase
+        titleEn="Research & Studies"
+        titleAr="البحوث والدراسات"
+        descriptionEn="Peer-reviewed academic research on classical jurisprudence, legal methodologies, and contemporary governance."
+        descriptionAr="بحوث أكاديمية محكّمة حول الفقه الكلاسيكي والمناهج القانونية والحوكمة المعاصرة."
+        categorySlug="research-studies"
+        posts={researchPosts}
+      />
+
+      {/* 8. Opinions Spotlight & Standard News Section */}
+      <OpinionsSection
+        titleEn="Opinions & Perspectives"
+        titleAr="الآراء ووجهات النظر"
+        descriptionEn="Thoughtful commentaries and analytical perspectives from esteemed scholars on societal challenges."
+        descriptionAr="تعليقات فكرية ووجهات نظر تحليلية من كبار العلماء حول التحديات المجتمعية."
+        categorySlug="opinions-perspectives"
+        posts={opinionPosts.length > 0 ? opinionPosts : fallbackOpinions}
+      />
+
+      <NewsSection
+        titleEn="News & Announcements"
+        titleAr="الأخبار والإعلانات"
+        descriptionEn="Updates on international scholarly conferences, publications, academic initiatives, and tribune events."
+        descriptionAr="مستجدات المؤتمرات العلمية الدولية والمنشورات والمبادرات الأكاديمية وفعاليات المنبر."
+        categorySlug="news-announcements"
+        posts={newsPosts.length > 0 ? newsPosts : fallbackNews}
+      />
+
+      {/* 9. Latest From the Tribune (Aggregated Latest Posts Spotlight) */}
+      <LatestBlogsSection
+        posts={posts.length > 0 ? posts : [...fallbackResearch, ...fallbackOpinions, ...fallbackNews]}
+      />
+
+      {/* 10. Search & Newsletter Callout Section */}
+      <section className="py-16 bg-[#1A1714] text-[#F5F1E8] border-t border-[#2E2A24] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-5">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={staggerContainer(0.12, 0.05)}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+          >
+            {/* Newsletter Callout */}
+            <motion.div variants={fadeUp} className="lg:col-span-7 space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#C5A059]">
+                {t("nav.subscribe")}
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#F5F1E8]">
+                {isRtl ? "اشترك في نشرتنا العلمية الدورية" : "Subscribe to Our Scholarly Digest"}
+              </h3>
+              <p className="text-xs sm:text-sm text-[#A39B8B] leading-relaxed max-w-xl font-sans">
+                {t("footer.tagline")}
+              </p>
+            </motion.div>
+
+            {/* Subscription Form */}
+            <motion.div variants={fadeUp} className="lg:col-span-5">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert(isRtl ? "شكراً لاشتراكك في منبر العلماء!" : "Thank you for subscribing to Ummah Scholars Tribune!");
+                }}
+                className="flex flex-col sm:flex-row gap-3 bg-[#0F0D0B] p-2 rounded-xl border border-[#2E2A24]"
+              >
+                <div className="flex items-center gap-2 px-3 py-2 flex-grow">
+                  <Mail className="w-4 h-4 text-[#A39B8B]" />
+                  <input
+                    type="email"
+                    required
+                    placeholder={isRtl ? "أدخل بريدك الإلكتروني" : "Enter your email address"}
+                    className="w-full bg-transparent border-none outline-none text-xs sm:text-sm text-[#F5F1E8] placeholder-[#A39B8B]"
+                  />
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="px-6 py-3 rounded-lg bg-[#C5A059] hover:bg-[#A37F3D] text-[#0F0D0B] font-bold text-xs sm:text-sm transition-colors whitespace-nowrap shadow-sm cursor-pointer"
+                >
+                  {t("nav.subscribe")}
+                </motion.button>
+              </form>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 10. Scholarly Footer */}
+      <Footer />
     </div>
   );
 }
