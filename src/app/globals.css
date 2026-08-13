@@ -1,11 +1,71 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* global.css */
+/* Tailwind CSS v4 Custom Variant for Class-Based Dark Mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Unified Brand Accent Tokens */
+  --accent: #B88A2B;
+  --accent-hover: #966F1E;
+  --accent-tint: #FAF0D7;
+  --emerald: #1B4D3E;
+  --sapphire: #1E3A8A;
+  --amber: #D97706;
+
+  /* Vibrant Rich Base Palette (Light Mode) */
+  --bg: #F7F4EE;
+  --surface: #FFFFFF;
+  --surface-tint: #F3ECE0;
+  --border: #E5DCCB;
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+
+  /* Fonts defaults */
+  --font-display-en: 'Fraunces', Georgia, serif;
+  --font-body-en: 'Inter', sans-serif;
+  --font-display-ar: 'Amiri', serif;
+  --font-body-ar: 'IBM Plex Sans Arabic', sans-serif;
+
+  color-scheme: light;
+}
+
+/* Class-based Dark Mode Overrides */
+.dark, html.dark, body.dark {
+  --accent: #C5A059;
+  --accent-hover: #A37F3D;
+  --accent-tint: #262118;
+  --emerald: #34D399;
+  --sapphire: #60A5FA;
+  --amber: #FBBF24;
+
+  --bg: #0F0D0B;
+  --surface: #1A1714;
+  --surface-tint: #262118;
+  --border: #2E2A24;
+  --text-primary: #F5F1E8;
+  --text-secondary: #A39B8B;
+
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Utilities */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Rich Arabesque Pattern Background Utility */
+.bg-arabesque-pattern {
+  background-image: radial-gradient(circle at 50% 50%, rgba(184, 138, 43, 0.12) 1.5px, transparent 1.5px), radial-gradient(circle at 0% 0%, rgba(27, 77, 62, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
