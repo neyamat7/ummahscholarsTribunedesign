@@ -4,9 +4,10 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, ArrowRight, ArrowLeft, Megaphone } from "lucide-react";
+import { Calendar, ArrowRight, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { fadeUp, staggerContainer } from "@/lib/animations";
+import SectionHeader from "@/components/SectionHeader";
 
 export default function NewsSection({
   titleEn,
@@ -40,38 +41,11 @@ export default function NewsSection({
   return (
     <section className="py-14 sm:py-18 bg-[#F7F4EE] dark:bg-[#0F0D0B] transition-colors overflow-hidden">
       <div className="max-w-7xl mx-auto px-5">
-        {/* 1. Header Row */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={fadeUp}
-          className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-[#E5DCCB] dark:border-[#2E2A24]"
-        >
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-[#B88A2B] dark:text-[#C5A059] block mb-1">
-              {isRtl ? "آخر المستجدات" : "Latest Updates"}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8]">
-              {sectionTitle}
-            </h2>
-            {sectionDesc && (
-              <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#A39B8B] mt-1 font-sans max-w-xl">
-                {sectionDesc}
-              </p>
-            )}
-          </div>
-
-          {/* Post count badge */}
-          <div className="mt-4 sm:mt-0 flex items-center gap-2">
-            <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-[#E5DCCB] dark:bg-[#1C1917] text-[#B88A2B] dark:text-[#C5A059] border border-[#B88A2B]/30 dark:border-[#C5A059]/30 flex items-center gap-1.5 shadow-sm">
-              <Megaphone size={13} className="opacity-80" />
-              <span>
-                {posts.length} {isRtl ? "إعلانات" : "Announcements"}
-              </span>
-            </span>
-          </div>
-        </motion.div>
+        {/* Common Section Header */}
+        <SectionHeader
+          title={sectionTitle}
+          description={sectionDesc}
+        />
 
         {/* 2. Featured Asymmetric Banner */}
         <motion.div

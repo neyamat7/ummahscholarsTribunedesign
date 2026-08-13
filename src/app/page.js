@@ -210,15 +210,24 @@ export default function Home() {
           variants={fadeUp}
           className="text-center max-w-4xl mx-auto px-4 space-y-3"
         >
-          <span className="text-xs font-bold uppercase tracking-widest text-[#B88A2B] dark:text-[#C5A059] block">
-            {isRtl ? "المنصة العالمية الأصيلة" : "Authentic Global Platform"}
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8] tracking-tight">
-            <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
-              {isRtl ? "منبر علماء الأمة" : "Ummah Scholars Tribune"}
-            </span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8] tracking-tight">
+            {isRtl ? (
+              <>
+                منبر علماء{" "}
+                <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
+                  الأمة
+                </span>
+              </>
+            ) : (
+              <>
+                Ummah Scholars{" "}
+                <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
+                  Tribune
+                </span>
+              </>
+            )}
           </h2>
-          <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#A39B8B] font-serif max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-[#57534E] dark:text-[#A39B8B] font-serif max-w-xl mx-auto leading-relaxed">
             {t("site.subtitle")}
           </p>
         </motion.div>
@@ -284,11 +293,22 @@ export default function Home() {
           >
             {/* Newsletter Callout */}
             <motion.div variants={fadeUp} className="lg:col-span-7 space-y-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#C5A059]">
-                {t("nav.subscribe")}
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#F5F1E8]">
-                {isRtl ? "اشترك في نشرتنا العلمية الدورية" : "Subscribe to Our Scholarly Digest"}
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-[#F5F1E8] tracking-tight leading-[1.2]">
+                {isRtl ? (
+                  <>
+                    اشترك في نشرتنا العلمية{" "}
+                    <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
+                      الدورية
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Subscribe to Our Scholarly{" "}
+                    <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
+                      Digest
+                    </span>
+                  </>
+                )}
               </h3>
               <p className="text-xs sm:text-sm text-[#A39B8B] leading-relaxed max-w-xl font-sans">
                 {t("footer.tagline")}

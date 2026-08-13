@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Calendar, MapPin, Globe, ArrowRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import SectionHeader from "@/components/SectionHeader";
 import { fadeUp, staggerContainer, cardHoverAnimation } from "@/lib/animations";
 
 export default function UpcomingEvents() {
@@ -71,32 +72,14 @@ export default function UpcomingEvents() {
   return (
     <section className="py-14 bg-[#FFFFFF] dark:bg-[#1A1714] border-b border-[#E5DCCB] dark:border-[#2E2A24] transition-colors overflow-hidden">
       <div className="max-w-7xl mx-auto px-5">
-        {/* Section Header */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={fadeUp}
-          className="flex items-center justify-between mb-8 pb-3 border-b border-[#E5DCCB] dark:border-[#2E2A24]"
-        >
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#FAF0D7] dark:bg-[#262118] flex items-center justify-center text-[#B88A2B] dark:text-[#C5A059]">
-              <Calendar className="w-4 h-4" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8]">
-              {t("site.upcomingEvents")}
-            </h2>
-          </div>
-
-          <motion.a
-            whileHover={{ x: isRtl ? -4 : 4 }}
-            href="/events"
-            className="text-xs sm:text-sm font-bold text-[#B88A2B] dark:text-[#C5A059] hover:underline flex items-center gap-1 transition-colors"
-          >
-            {t("site.viewAllEvents")}
-            {isRtl ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
-          </motion.a>
-        </motion.div>
+        {/* Common Section Header */}
+        <SectionHeader
+          title={t("site.upcomingEvents")}
+          action={{
+            href: "/events",
+            label: t("site.viewAllEvents"),
+          }}
+        />
 
         {/* Horizontal Event Cards Grid */}
         <motion.div

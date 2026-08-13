@@ -20,17 +20,19 @@ export default function HeroSlider() {
 
   return (
     <section className="relative w-full min-h-[580px] lg:min-h-[660px] flex items-center bg-[#0F0D0B] overflow-hidden pt-20">
-      {/* Background Media with Gradient Mask */}
-      <div className="absolute inset-0 w-full h-full">
-        <Image
-          src="/home.jpeg"
-          alt="Ummah Scholars Tribune Banner"
-          fill
-          priority
-          className="object-cover object-center opacity-40 scale-105 transition-transform duration-1000 motion-reduce:transform-none"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0F0D0B] via-[#0F0D0B]/80 to-transparent rtl:bg-gradient-to-l" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F0D0B] via-transparent to-[#0F0D0B]/40" />
+      {/* Background Media with Gradient Mask positioned to clearly showcase image & logo on the right, shifted down */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 md:left-[15%] rtl:md:left-0 rtl:md:right-[15%] top-8 sm:top-10 md:top-14 lg:top-16 w-full h-[calc(100%-32px)] md:h-[calc(100%-60px)]">
+          <Image
+            src="/home.jpeg"
+            alt="Ummah Scholars Tribune Banner"
+            fill
+            priority
+            className="object-cover object-[70%_top] rtl:object-[30%_top] opacity-70 md:opacity-85 transition-transform duration-1000 scale-100"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0F0D0B] via-[#0F0D0B]/85 to-transparent rtl:bg-gradient-to-l rtl:from-[#0F0D0B] rtl:via-[#0F0D0B]/85 md:w-3/5 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F0D0B] via-transparent to-[#0F0D0B]/50 z-[1]" />
       </div>
 
       {/* Asymmetric Editorial Hero Content with Cascading Reveal */}
@@ -41,16 +43,6 @@ export default function HeroSlider() {
           variants={staggerContainer(0.12, 0.1)}
           className={`max-w-2xl ${isRtl ? "text-right mr-0 ml-auto" : "text-left ml-0 mr-auto"}`}
         >
-          {/* Scholarly Badge */}
-          <motion.div variants={fadeUp} className="inline-block mb-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#FAF4E9]/10 border border-[#C5A059]/30 backdrop-blur-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
-              <span className="text-xs font-semibold uppercase tracking-widest text-[#C5A059]">
-                {isRtl ? "منبر علماء الأمة" : "Ummah Scholars Tribune"}
-              </span>
-            </div>
-          </motion.div>
-
           {/* Editorial Display Heading */}
           <motion.h1
             variants={fadeUp}

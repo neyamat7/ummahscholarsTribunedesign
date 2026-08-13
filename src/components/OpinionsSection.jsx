@@ -3,18 +3,107 @@
 import { useLanguage } from "@/context/LanguageContext";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import SectionHeader from "@/components/SectionHeader";
 
-// Staggered heights so the 3 cards align like the reference —
-// short / tall / medium — anchored to a common bottom baseline via items-end.
-const CARD_HEIGHTS = ["h-[420px]", "h-[480px]", "h-[450px]"];
+/* ---------------------------------------------------------------------- */
+/*  Shared card — image on top (rounded, normal flow), content below.      */
+/*  "featured" renders a taller image + larger type for the bento's        */
+/*  primary slot; regular cards are compact for the side stack.            */
+/* ---------------------------------------------------------------------- */
+function BlogCard({ post, isRtl, featured = false }) {
+  const title = isRtl
+    ? post.titleAr || post.titleEn || post.title
+    : post.titleEn || post.titleAr || post.title;
+
+  const excerpt = isRtl
+    ? post.excerptAr || post.excerptEn
+    : post.excerptEn || post.excerptAr;
+
+  const kicker = isRtl
+    ? post.category?.nameAr || post.author?.nameAr || "رأي"
+    : post.category?.nameEn || post.author?.nameEn || "Perspective";
+
+  const date = post.date;
+
+  return (
+    <motion.div
+      whileHover={{ y: -6 }}
+      transition={{ type: "spring", stiffness: 260, damping: 22 }}
+      className="group h-full"
+    >
+      <Link href={`/blog/post-${post.id}`} className="flex flex-col h-full">
+        {/* Image */}
+        <div
+          className={`relative w-full overflow-hidden rounded-2xl bg-[#EDE6D6] dark:bg-[#1A1714] ${
+            featured ? "aspect-[16/11]" : "aspect-[16/10]"
+          }`}
+        >
+          <motion.div
+            className="absolute inset-0"
+            whileHover={{ scale: 1.06 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Image
+              src={post.featuredImageUrl || post.image || "/news/news1.avif"}
+              fill
+              alt={title || "Blog cover image"}
+              className="object-cover"
+            />
+          </motion.div>
+
+          {/* Category chip, floating on the image */}
+          <span className="absolute top-4 left-4 rtl:left-auto rtl:right-4 text-[10px] font-bold uppercase tracking-widest text-[#1C1917] bg-[#F5F1E8]/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            {kicker}
+          </span>
+
+          {/* Arrow button, bottom-right, slides in on hover */}
+          <motion.span
+            initial={{ opacity: 0, x: isRtl ? -8 : 8 }}
+            whileHover={{ opacity: 1 }}
+            className="absolute bottom-4 right-4 rtl:right-auto rtl:left-4 w-10 h-10 rounded-full bg-[#F5F1E8] flex items-center justify-center text-[#1C1917] opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-2 rtl:-translate-x-2 group-hover:rtl:translate-x-0 transition-all duration-300"
+          >
+            <ArrowUpRight size={16} />
+          </motion.span>
+        </div>
+
+        {/* Content below image, normal flow */}
+        <div className={`flex-1 flex flex-col ${featured ? "pt-6" : "pt-4"}`}>
+          <h3
+            className={`font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8] leading-snug group-hover:text-[#B88A2B] dark:group-hover:text-[#C5A059] transition-colors duration-300 ${
+              featured
+                ? "text-2xl sm:text-3xl line-clamp-2"
+                : "text-base sm:text-lg line-clamp-2"
+            }`}
+          >
+            {title}
+          </h3>
+
+          {featured && excerpt && (
+            <p className="text-sm text-[#57534E] dark:text-[#A39B8B] mt-3 leading-relaxed line-clamp-2 max-w-lg">
+              {excerpt}
+            </p>
+          )}
+
+          <div className="flex items-center gap-2 mt-auto pt-4 text-xs text-[#78716C] dark:text-[#8A8175]">
+            {date && <span>{date}</span>}
+            {date && <span className="w-1 h-1 rounded-full bg-[#B88A2B]/50 dark:bg-[#C5A059]/50" />}
+            <span className="font-semibold text-[#B88A2B] dark:text-[#C5A059] group-hover:underline underline-offset-2">
+              {isRtl ? "اقرأ المزيد" : "Read more"}
+            </span>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
 
 export default function OpinionsSection({
   titleEn,
   titleAr,
-  highlightEn, // optional: the single word to italicize + color gold, e.g. "Yourself"
+  highlightEn,
   highlightAr,
   descriptionEn,
   descriptionAr,
@@ -25,10 +114,10 @@ export default function OpinionsSection({
 
   if (!posts || posts.length === 0) return null;
 
-  const sectionDesc = isRtl ? descriptionAr : descriptionEn;
+  const displayPosts = posts.slice(0, 3);
+  const [featuredPost, ...restPosts] = displayPosts;
 
-  // Build a two-line heading where the last word (or explicit highlight prop)
-  // is italic + gold, matching "Become the Best Version of *Yourself*".
+  const sectionDesc = isRtl ? descriptionAr : descriptionEn;
   const rawTitle = isRtl ? titleAr : titleEn;
   const highlight = isRtl ? highlightAr : highlightEn;
   const words = (rawTitle || "").trim().split(" ");
@@ -36,98 +125,41 @@ export default function OpinionsSection({
   const leadingWords = highlight ? rawTitle : words.slice(0, -1).join(" ");
 
   return (
-    <section className="py-14 sm:py-20 bg-[#F7F4EE] dark:bg-[#0F0D0B] transition-colors overflow-hidden">
+    <section className="py-20 sm:py-28 bg-[#F7F4EE] dark:bg-[#0F0D0B] transition-colors overflow-hidden">
       <div className="max-w-7xl mx-auto px-5">
-        {/* Header row — big two-line heading left, circular "View All" action right */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={fadeUp}
-          className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-10 sm:mb-14"
-        >
-          <div className="max-w-xl">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#B88A2B] dark:text-[#C5A059] block mb-2">
-              {isRtl ? "أبرز الآراء" : "Opinion Spotlight"}
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-serif font-bold leading-[1.15] text-[#1C1917] dark:text-[#F5F1E8]">
-              {leadingWords}
-              {leadingWords ? " " : ""}
-              <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
-                {highlightWord}
-              </span>
-            </h2>
-            {sectionDesc && (
-              <p className="text-sm text-[#57534E] dark:text-[#A39B8B] mt-3 font-sans leading-relaxed">
-                {sectionDesc}
-              </p>
-            )}
-          </div>
+        {/* Common Section Header */}
+        <SectionHeader
+          title={leadingWords}
+          highlight={highlightWord}
+          description={sectionDesc}
+          action={{
+            href: `/blog/${categorySlug}`,
+            label: isRtl ? "عرض الكل" : "View All",
+          }}
+          borderBottom={true}
+        />
 
-          <Link
-            href={`/blog/${categorySlug}`}
-            className="flex items-center gap-3 flex-shrink-0 self-start sm:self-center group"
-          >
-            <motion.div
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{
-                duration: 2.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              whileHover={{ scale: 1.1 }}
-              className="w-11 h-11 rounded-full border-2 border-[#B88A2B] dark:border-[#C5A059] flex items-center justify-center flex-shrink-0 text-[#B88A2B] dark:text-[#C5A059]"
-            >
-              {isRtl ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
-            </motion.div>
-            <span className="text-sm font-bold text-[#1C1917] dark:text-[#F5F1E8] group-hover:text-[#B88A2B] dark:group-hover:text-[#C5A059] transition-colors whitespace-nowrap">
-              {isRtl ? "عرض الكل" : "View All"}
-            </span>
-          </Link>
-        </motion.div>
-
-        {/* Staggered photo-card row */}
+        {/* Bento grid: large featured card + two stacked compact cards */}
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
-          variants={staggerContainer(0.12, 0.05)}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-end"
+          variants={staggerContainer(0.12, 0.08)}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12"
         >
-          {posts.slice(0, 3).map((post, index) => {
-            const title = isRtl
-              ? post.titleAr || post.titleEn || post.title
-              : post.titleEn || post.titleAr || post.title;
+          {featuredPost && (
+            <motion.div variants={fadeUp} className="lg:col-span-2">
+              <BlogCard post={featuredPost} isRtl={isRtl} featured />
+            </motion.div>
+          )}
 
-            return (
-              <motion.div key={post.id} variants={fadeUp} className="w-full">
-                <Link
-                  href={`/blog/post-${post.id}`}
-                  className={`group block relative w-full ${CARD_HEIGHTS[index % 3]} rounded-t-[2rem] overflow-hidden bg-[#1A1714]`}
-                >
-                  {/* Cover image — muted by default, brightens to full color on hover */}
-                  <Image
-                    src={
-                      post.featuredImageUrl || post.image || "/news/news1.avif"
-                    }
-                    fill
-                    alt={title || "Opinion cover image"}
-                    className="object-cover saturate-[0.65] brightness-[0.92] group-hover:saturate-100 group-hover:brightness-100 group-hover:scale-105 transition-all duration-500 ease-out"
-                  />
-
-                  {/* Bottom gradient scrim for text legibility */}
-                  <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-
-                  {/* Title overlaid bottom-left */}
-                  <div className="absolute bottom-6 left-6 right-6 rtl:left-6 rtl:right-6">
-                    <h3 className="font-serif italic font-bold text-xl sm:text-2xl text-white leading-tight line-clamp-2 drop-shadow-md">
-                      {title}
-                    </h3>
-                  </div>
-                </Link>
+          <div className="flex flex-col gap-10">
+            {restPosts.map((post) => (
+              <motion.div key={post.id} variants={fadeUp}>
+                <BlogCard post={post} isRtl={isRtl} />
               </motion.div>
-            );
-          })}
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>

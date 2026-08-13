@@ -60,10 +60,22 @@ export default function LatestBlogsSection({ posts = [] }) {
           className="flex items-center my-8 sm:my-12"
         >
           <div className="flex-1 border-t border-[#E5DCCB] dark:border-[#2E2A24]" />
-          <h2 className="px-6 text-xl sm:text-2xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8] whitespace-nowrap">
-            <span className="text-[#B88A2B] dark:text-[#C5A059]">
-              {isRtl ? "أحدث ما نشر في المنبر" : "Latest From the Tribune"}
-            </span>
+          <h2 className="px-4 sm:px-8 text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8] tracking-tight text-center leading-snug">
+            {isRtl ? (
+              <>
+                أحدث ما نشر في{" "}
+                <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
+                  المنبر
+                </span>
+              </>
+            ) : (
+              <>
+                Latest From the{" "}
+                <span className="italic text-[#B88A2B] dark:text-[#C5A059]">
+                  Tribune
+                </span>
+              </>
+            )}
           </h2>
           <div className="flex-1 border-t border-[#E5DCCB] dark:border-[#2E2A24]" />
         </motion.div>

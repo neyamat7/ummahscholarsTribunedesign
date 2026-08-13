@@ -82,10 +82,11 @@ export default function Navbar() {
    */
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out transform ${
-        isVisible ? "translate-y-0" : "-translate-y-full"
-      } ${
+    <motion.header
+      initial={{ y: "-100%", opacity: 0 }}
+      animate={{ y: isVisible ? 0 : "-100%", opacity: 1 }}
+      transition={{ duration: 0.7, ease: EXPO_EASE }}
+      className={`fixed top-0 left-0 right-0 z-50 ${
         isScrolled
           ? "bg-[#FFFFFF]/95 dark:bg-[#1A1714]/95 backdrop-blur-md border-b border-[#E7E2D9] dark:border-[#2E2A24] shadow-xs"
           : "bg-[#FFFFFF] dark:bg-[#1A1714] border-b border-[#E7E2D9] dark:border-[#2E2A24]"
@@ -117,19 +118,19 @@ export default function Navbar() {
               <div className="flex flex-col text-left rtl:text-right leading-none justify-center">
                 {isRtl ? (
                   <>
-                    <span className="font-serif font-bold text-sm sm:text-base text-[#1A1714] dark:text-[#F5F1E8] tracking-tight leading-tight">
+                    <span className="font-serif font-bold text-sm sm:text-base text-[#1A1714] dark:text-[#F5F1E8] tracking-tight leading-tight whitespace-nowrap">
                       منبر أعلام
                     </span>
-                    <span className="font-serif font-semibold text-xs text-[#C5A059] tracking-wider leading-tight mt-0.5">
+                    <span className="font-serif font-semibold text-xs text-[#C5A059] tracking-wider leading-tight mt-0.5 whitespace-nowrap">
                       الأمة
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="font-serif font-bold text-sm sm:text-base text-[#1A1714] dark:text-[#F5F1E8] tracking-tight leading-tight">
+                    <span className="font-serif font-bold text-sm sm:text-base text-[#1A1714] dark:text-[#F5F1E8] tracking-tight leading-tight whitespace-nowrap">
                       Ummah Scholars
                     </span>
-                    <span className="font-serif font-semibold text-xs text-[#C5A059] tracking-wider leading-tight mt-0.5">
+                    <span className="font-serif font-semibold text-xs text-[#C5A059] tracking-wider leading-tight mt-0.5 whitespace-nowrap">
                       Tribune
                     </span>
                   </>
@@ -305,6 +306,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }

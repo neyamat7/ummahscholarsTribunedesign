@@ -23,14 +23,9 @@ const KeyApplications = () => {
           <div className="w-9 h-9 rounded-xl bg-[#1B4D3E] text-white dark:bg-[#262118] dark:text-[#C5A059] border border-[#1B4D3E]/20 flex items-center justify-center shadow-xs">
             <BookMarked size={18} />
           </div>
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-[#B88A2B] dark:text-[#C5A059] block">
-              Mission & Vision
-            </span>
-            <h3 className="text-lg md:text-xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8]">
-              Ummah Scholars Tribune <span className="text-[#57534E] dark:text-[#A39B8B] text-sm font-normal">(منبر أعلام الأمة)</span>
-            </h3>
-          </div>
+          <h3 className="text-lg md:text-xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8]">
+            Ummah Scholars Tribune <span className="text-[#57534E] dark:text-[#A39B8B] text-sm font-normal">(منبر أعلام الأمة)</span>
+          </h3>
         </div>
         <Globe2 className="w-5 h-5 text-[#B88A2B] dark:text-[#C5A059]/60" />
       </div>

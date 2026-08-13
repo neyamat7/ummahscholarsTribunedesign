@@ -8,10 +8,10 @@ import {
   Scale,
   Sprout,
   Globe,
-  Landmark,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import SectionHeader from "@/components/SectionHeader";
 import { fadeUp, scaleIn, staggerContainer, cardHoverAnimation } from "@/lib/animations";
 
 const features = [
@@ -79,15 +79,6 @@ const features = [
     descAr: "ربط العلماء والمؤسسات الأكاديمية الدولية.",
     colorLight: "bg-[#6D28D9] text-white",
   },
-  {
-    id: 8,
-    titleEn: "Institutional Excellence",
-    titleAr: "التميز المؤسسي",
-    icon: Landmark,
-    descEn: "Building enduring intellectual infrastructure for humanity.",
-    descAr: "بناء بنيان فكري مستدام لخدمة الإنسانية.",
-    colorLight: "bg-[#3730A3] text-white",
-  },
 ];
 
 export default function ResearchFeatures() {
@@ -96,28 +87,15 @@ export default function ResearchFeatures() {
   return (
     <section className="py-16 lg:py-24 bg-[#F7F4EE] dark:bg-[#0F0D0B] transition-colors border-t border-b border-[#E5DCCB] dark:border-[#2E2A24]">
       <div className="max-w-7xl mx-auto px-5">
-        {/* Section Header with fadeUp */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={fadeUp}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-12 pb-4 border-b border-[#E5DCCB] dark:border-[#2E2A24]"
-        >
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-[#B88A2B] dark:text-[#C5A059] block mb-1">
-              {isRtl ? "المحاور العلمية الرئيسية" : "Academic Pillars"}
-            </span>
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8]">
-              {isRtl ? "ركائز المنهج والمعرفة" : "Foundations of Rigorous Scholarship"}
-            </h2>
-          </div>
-          <p className="text-xs md:text-sm text-[#57534E] dark:text-[#A39B8B] max-w-md mt-2 md:mt-0 leading-relaxed font-sans">
-            {isRtl
+        {/* Common Section Header */}
+        <SectionHeader
+          title={isRtl ? "ركائز الفكر والمنهج العلمي" : "Pillars of Scholarly Inquiry"}
+          description={
+            isRtl
               ? "إطار علمي يجمع بين أصالة التراث ومرونة المعاصرة لبناء الوعي وإحداث الأثر المستدام."
-              : "A scholarly framework combining classical heritage with contemporary rigor to foster knowledge and lasting impact."}
-          </p>
-        </motion.div>
+              : "A scholarly framework combining classical heritage with contemporary rigor to foster knowledge and lasting impact."
+          }
+        />
 
         {/* Staggered Bento Grid Layout (Total cascade tuned <1.2s) */}
         <motion.div
