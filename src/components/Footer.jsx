@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { Twitter, Facebook, Instagram, Linkedin, Youtube, BookOpen } from "lucide-react";
+import Image from "next/image";
+import { Twitter, Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { fadeIn } from "@/lib/animations";
@@ -23,14 +24,37 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 border-b border-[#2E2A24]">
           {/* Brand & Mission Column */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#FAF4E9]/10 border border-[#C5A059]/30 flex items-center justify-center text-[#C5A059]">
-                <BookOpen size={20} />
+            <Link href="/" className="inline-flex items-center gap-3.5 group">
+              <div className="relative w-11 h-11 rounded-full overflow-hidden border border-[#C5A059]/60 shadow-xs transition-transform duration-300 group-hover:scale-105 flex-shrink-0">
+                <Image
+                  src="/logo/logo.jpeg"
+                  alt="Ummah Scholars Tribune Logo"
+                  fill
+                  className="object-cover"
+                />
               </div>
-              <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#F5F1E8]">
-                {isRtl ? "منبر علماء الأمة" : "Ummah Scholars Tribune"}
-              </h2>
-            </div>
+              <div className="flex flex-col text-left rtl:text-right leading-none justify-center">
+                {isRtl ? (
+                  <>
+                    <span className="font-serif font-bold text-base sm:text-lg text-[#F5F1E8] tracking-tight leading-tight whitespace-nowrap">
+                      منبر أعلام
+                    </span>
+                    <span className="font-serif font-semibold text-xs text-[#C5A059] tracking-wider leading-tight mt-0.5 whitespace-nowrap">
+                      الأمة
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-serif font-bold text-base sm:text-lg text-[#F5F1E8] tracking-tight leading-tight whitespace-nowrap">
+                      Ummah Scholars
+                    </span>
+                    <span className="font-serif font-semibold text-xs text-[#C5A059] tracking-wider leading-tight mt-0.5 whitespace-nowrap">
+                      Tribune
+                    </span>
+                  </>
+                )}
+              </div>
+            </Link>
 
             <p className="text-xs sm:text-sm text-[#A39B8B] leading-relaxed max-w-md font-sans">
               {t("footer.tagline")}
