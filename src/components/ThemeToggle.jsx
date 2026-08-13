@@ -1,45 +1,56 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const storedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    const shouldBeDark = storedTheme === "dark" || (!storedTheme && prefersDark);
-
-    if (shouldBeDark) {
-      setIsDark(true);
+  const applyTheme = useCallback((dark) => {
+    setIsDark(dark);
+    if (dark) {
       document.documentElement.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
       document.body.classList.add("dark");
     } else {
-      setIsDark(false);
       document.documentElement.classList.remove("dark");
+      document.documentElement.setAttribute("data-theme", "light");
       document.body.classList.remove("dark");
     }
   }, []);
 
+  const syncFromStorage = useCallback(() => {
+    try {
+      const storedTheme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const shouldBeDark = storedTheme === "dark" || (!storedTheme && prefersDark);
+      applyTheme(shouldBeDark);
+    } catch (e) {
+      applyTheme(false);
+    }
+  }, [applyTheme]);
+
+  useEffect(() => {
+    setMounted(true);
+    syncFromStorage();
+
+    const handleThemeChange = () => {
+      syncFromStorage();
+    };
+
+    window.addEventListener("themeChange", handleThemeChange);
+    return () => window.removeEventListener("themeChange", handleThemeChange);
+  }, [syncFromStorage]);
+
   const toggleTheme = () => {
     const nextDark = !isDark;
-    setIsDark(nextDark);
+    applyTheme(nextDark);
+    try {
+      localStorage.setItem("theme", nextDark ? "dark" : "light");
+    } catch (e) {}
 
-    if (nextDark) {
-      document.documentElement.classList.add("dark");
-      document.body.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.body.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-
-    // Trigger window event for any custom listeners
+    // Dispatch custom event to sync desktop and mobile toggle instances
     window.dispatchEvent(new Event("themeChange"));
   };
 

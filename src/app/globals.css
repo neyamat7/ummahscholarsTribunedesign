@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* Tailwind CSS v4 Custom Variant for Class-Based Dark Mode */
-@custom-variant dark (&:where(.dark, .dark *));
+/* Tailwind CSS v4 Custom Variant for Class-Based & Attribute-Based Dark Mode */
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
 :root {
   /* Unified Brand Accent Tokens */
@@ -30,8 +30,8 @@
   color-scheme: light;
 }
 
-/* Class-based Dark Mode Overrides */
-.dark, html.dark, body.dark {
+/* Class-based and Data-Theme Dark Mode Overrides */
+.dark, html.dark, body.dark, [data-theme="dark"], html[data-theme="dark"] {
   --accent: #C5A059;
   --accent-hover: #A37F3D;
   --accent-tint: #262118;

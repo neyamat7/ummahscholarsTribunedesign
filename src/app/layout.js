@@ -32,12 +32,19 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
 export const metadata = {
   title: "Ummah Scholars Tribune | Voice of Intellectual & Classical Scholarship",
   description: "Classical legal scholarship, Islamic jurisprudence, modern governance, and ethical research.",
+  icons: {
+    icon: "/favicon/favicon.jpeg",
+    shortcut: "/favicon/favicon.jpeg",
+    apple: "/favicon/favicon.jpeg",
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/favicon/favicon.jpeg" sizes="any" />
+        <link rel="apple-touch-icon" href="/favicon/favicon.jpeg" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -45,10 +52,13 @@ export default function RootLayout({ children }) {
                 try {
                   var theme = localStorage.getItem('theme');
                   var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  if (theme === 'dark' || (!theme && prefersDark)) {
+                  var isDark = theme === 'dark' || (!theme && prefersDark);
+                  if (isDark) {
                     document.documentElement.classList.add('dark');
+                    document.documentElement.setAttribute('data-theme', 'dark');
                   } else {
                     document.documentElement.classList.remove('dark');
+                    document.documentElement.setAttribute('data-theme', 'light');
                   }
                 } catch (e) {}
               })();
@@ -57,6 +67,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
+        suppressHydrationWarning
         className={`${fraunces.variable} ${inter.variable} ${amiri.variable} ${ibmPlexArabic.variable} antialiased bg-[#FBF9F6] dark:bg-[#0F0D0B] text-[#1A1714] dark:text-[#F5F1E8] transition-colors duration-300`}
       >
         <LanguageProvider>
