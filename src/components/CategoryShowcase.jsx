@@ -23,7 +23,9 @@ const POSITIONS = [
 ];
 
 // Mirrored positions for RTL — left/right swap so the composition reads
-// correctly for Arabic.
+// correctly for Arabic. NOTE: these are applied manually via inline
+// left/right/top/bottom styles, independent of the ambient `dir` attribute
+// — see the `dir="ltr"` fix below for why that separation matters.
 const POSITIONS_RTL = [
   { right: "2%", top: "14%", rotate: 4 },
   { left: "2%", top: "12%", rotate: -3 },
@@ -56,6 +58,10 @@ function usePrefersReducedMotion() {
 }
 
 function ShowcaseImage({ post, index, scrollYProgress, isRtl, title }) {
+  // IMPORTANT: positions are still selected from POSITIONS_RTL when isRtl
+  // is true — mirroring is preserved. The fix below only concerns the
+  // ancestor `dir` attribute breaking CSS `position: sticky`, not this
+  // manual position-swap logic, which stays exactly as before.
   const positions = isRtl ? POSITIONS_RTL : POSITIONS;
   const pos = positions[index];
 
@@ -106,9 +112,11 @@ function ShowcaseImage({ post, index, scrollYProgress, isRtl, title }) {
           />
         </div>
 
-        {/* Floating info badge */}
+        {/* Floating info badge — dir set explicitly since this now sits
+            inside an ancestor forced to dir="ltr" (see PinnedShowcase) */}
         <motion.div
           style={{ opacity: badgeOpacity, y: badgeY }}
+          dir={isRtl ? "rtl" : "ltr"}
           className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 rounded-xl bg-white/90 dark:bg-[#1A1714]/90 backdrop-blur-md px-3.5 py-2.5 shadow-md"
         >
           <span className="text-xs sm:text-sm font-serif font-bold text-[#1A1714] dark:text-[#F5F1E8] line-clamp-1">
@@ -148,9 +156,15 @@ function PinnedShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
   return (
-    // Compact 130vh runway — reveals smoothly without any dead scrolling zone
-    <div ref={containerRef} className="relative h-[130vh]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#F7F4EE] dark:bg-[#0F0D0B] flex items-center justify-center">
+    // FIX: dir="ltr" forced here and on the sticky child below. This is
+    // the actual fix for the RTL bug — `position: sticky` breaks/silently
+    // fails inside ancestors with `direction: rtl` in Chromium and
+    // Firefox, which is exactly why the section rendered as duplicated,
+    // non-pinned content only when the language was switched to Arabic.
+    // The manual POSITIONS_RTL mirroring above is unaffected by this and
+    // continues to produce the correct visually-mirrored layout.
+    <div ref={containerRef} dir="ltr" className="relative h-[130vh]">
+      <div dir="ltr" className="sticky top-0 h-screen w-full overflow-hidden bg-[#F7F4EE] dark:bg-[#0F0D0B] flex items-center justify-center">
         <div className="relative w-full h-full max-w-7xl mx-auto px-5">
           {posts.slice(0, 4).map((post, i) => {
             const postTitle = isRtl
@@ -168,9 +182,14 @@ function PinnedShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
             );
           })}
 
-          {/* Center text block */}
+          {/* Center text block — dir set explicitly here too, since its
+              ancestor chain is now forced to dir="ltr" for the sticky
+              fix above; without this, Arabic text would lose its correct
+              right-to-left alignment even though the characters
+              themselves would still render via Unicode bidi. */}
           <motion.div
             style={{ opacity: textOpacity, y: textY }}
+            dir={isRtl ? "rtl" : "ltr"}
             className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-20 pointer-events-none"
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-[#1C1917] dark:text-[#F5F1E8] mb-4 max-w-2xl tracking-tight leading-[1.2]">
@@ -202,6 +221,7 @@ function PinnedShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
 // Simple, non-pinned fallback for mobile/tablet and reduced-motion users —
 // a static 2x2 grid with a standard one-time fade-up entrance instead of
 // scroll-scrubbing, which doesn't translate well to touch scrolling.
+// (Unaffected by the sticky/RTL bug since it uses no sticky positioning.)
 function StaticShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, categorySlug, posts }) {
   const { isRtl } = useLanguage();
   const title = isRtl ? titleAr : titleEn;
@@ -270,6 +290,7 @@ function StaticShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
 export default function CategoryShowcase(props) {
   const isDesktop = useIsDesktop(1024);
   const reducedMotion = usePrefersReducedMotion();
+  const { isRtl } = useLanguage();
 
   if (!props.posts || props.posts.length === 0) return null;
 
@@ -277,5 +298,12 @@ export default function CategoryShowcase(props) {
     return <StaticShowcase {...props} />;
   }
 
-  return <PinnedShowcase {...props} />;
+  // FIX: key forces a full remount on language change, discarding any
+  // stale scroll ref / motion-value state from before the switch, rather
+  // than trying to reconcile a sticky-positioned, scroll-linked component
+  // across a direction change in place. This is a defensive second layer
+  // on top of the dir="ltr" fix above — together they resolve both the
+  // root cause (sticky breaking under rtl) and any leftover stale state
+  // from before the fix was in place.
+  return <PinnedShowcase key={isRtl ? "ar" : "en"} {...props} />;
 }
