@@ -19,14 +19,23 @@ function BlogCard({ post, isRtl, featured = false }) {
     : post.titleEn || post.titleAr || post.title;
 
   const excerpt = isRtl
-    ? post.excerptAr || post.excerptEn
-    : post.excerptEn || post.excerptAr;
+    ? post.excerptAr || post.excerptEn || post.excerpt
+    : post.excerptEn || post.excerptAr || post.excerpt;
 
   const kicker = isRtl
-    ? post.category?.nameAr || post.author?.nameAr || "رأي"
-    : post.category?.nameEn || post.author?.nameEn || "Perspective";
+    ? post.category?.nameAr || post.pageCategory?.nameAr || post.author?.nameAr || "رأي"
+    : post.category?.nameEn || post.pageCategory?.nameEn || post.author?.nameEn || "Perspective";
 
-  const date = post.date;
+  const date =
+    post.date ||
+    (post.publishedAt
+      ? new Date(post.publishedAt).toLocaleDateString(
+          isRtl ? "ar-EG" : "en-US",
+          { month: "long", day: "numeric", year: "numeric" }
+        )
+      : "");
+
+  const slug = post.slug || post.id;
 
   return (
     <motion.div
@@ -34,7 +43,7 @@ function BlogCard({ post, isRtl, featured = false }) {
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
       className="group h-full"
     >
-      <Link href={`/blog/post-${post.id}`} className="flex flex-col h-full">
+      <Link href={`/blog/post/${slug}`} className="flex flex-col h-full">
         {/* Image */}
         <div
           className={`relative w-full overflow-hidden rounded-2xl bg-[#EDE6D6] dark:bg-[#1A1714] ${
@@ -47,8 +56,9 @@ function BlogCard({ post, isRtl, featured = false }) {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             <Image
-              src={post.featuredImageUrl || post.image || "/news/news1.avif"}
+              src={post.featuredImage?.url || post.featuredImageUrl || post.image || "/news/news1.avif"}
               fill
+              unoptimized
               alt={title || "Blog cover image"}
               className="object-cover"
             />
