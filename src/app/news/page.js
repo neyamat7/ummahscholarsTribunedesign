@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import Image from "next/image";
 
 const goldColor = "#C5A059";
@@ -218,6 +219,7 @@ export default function NewsPage() {
           </aside>
         </div>
       </section>
+      <Footer />
     </>
   );
 }

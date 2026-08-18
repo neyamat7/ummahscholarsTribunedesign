@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link'; // এই ইম্পোর্টটি মিস হয়েছিল, এখন ঠিক করে দেওয়া হয়েছে
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function OpinionsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -167,6 +168,8 @@ The opinions and views expressed in published materials are solely those of thei
  </p>
 
       </div>
+
+      <Footer />
     </main>
   );
 }
