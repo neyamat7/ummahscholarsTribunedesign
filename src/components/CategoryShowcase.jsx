@@ -104,9 +104,10 @@ function ShowcaseImage({ post, index, scrollYProgress, isRtl, title }) {
       >
         <div className="relative w-full aspect-[4/3] bg-neutral-200 dark:bg-neutral-800">
           <Image
-            src={post.image || post.featuredImageUrl || "/news/news1.avif"}
+            src={post.featuredImage?.url || post.image || post.featuredImageUrl || "/news/news1.avif"}
             alt={title}
             fill
+            unoptimized
             className="object-cover"
             sizes="(max-width: 768px) 46vw, (max-width: 1024px) 38vw, 300px"
           />
@@ -266,9 +267,10 @@ function StaticShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
             >
               <div className="relative w-full aspect-[4/3] bg-neutral-200 dark:bg-neutral-800">
                 <Image
-                  src={post.image || post.featuredImageUrl || "/news/news1.avif"}
+                  src={post.featuredImage?.url || post.image || post.featuredImageUrl || "/news/news1.avif"}
                   alt={postTitle}
                   fill
+                  unoptimized
                   className="object-cover"
                   sizes="45vw"
                 />

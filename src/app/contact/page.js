@@ -1,6 +1,7 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import Image from "next/image";
 
 export default function ContactPage() {
@@ -185,7 +186,7 @@ Kuala Lumpur, Malaysia
         </div>
       </section>
 
-      
+      <Footer />
     </main>
   );
 }

@@ -35,8 +35,24 @@ export default function NewsSection({
     ? featuredPost.excerptAr || featuredPost.excerptEn || featuredPost.excerpt
     : featuredPost.excerptEn || featuredPost.excerptAr || featuredPost.excerpt;
 
-  const featuredDate = featuredPost.date || (isRtl ? "أغسطس 2026" : "August 2026");
-  const featuredImage = featuredPost.featuredImageUrl || featuredPost.image || "/news/news1.avif";
+  const featuredDate =
+    featuredPost.date ||
+    (featuredPost.publishedAt
+      ? new Date(featuredPost.publishedAt).toLocaleDateString(
+          isRtl ? "ar-EG" : "en-US",
+          { month: "long", day: "numeric", year: "numeric" }
+        )
+      : isRtl
+      ? "أغسطس 2026"
+      : "August 2026");
+
+  const featuredImage =
+    featuredPost.featuredImage?.url ||
+    featuredPost.featuredImageUrl ||
+    featuredPost.image ||
+    "/news/news1.avif";
+
+  const featuredSlug = featuredPost.slug || featuredPost.id;
 
   return (
     <section className="py-14 sm:py-18 bg-[#F7F4EE] dark:bg-[#0F0D0B] transition-colors overflow-hidden">
@@ -71,7 +87,7 @@ export default function NewsSection({
                 </div>
 
                 {/* Post Title */}
-                <Link href={`/blog/post-${featuredPost.id}`}>
+                <Link href={`/blog/post/${featuredSlug}`}>
                   <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#F5F1E8] leading-tight hover:text-[#C5A059] transition-colors">
                     {featuredTitle}
                   </h3>
@@ -87,7 +103,7 @@ export default function NewsSection({
 
               {/* Gold Pill CTA Button */}
               <div>
-                <Link href={`/blog/post-${featuredPost.id}`}>
+                <Link href={`/blog/post/${featuredSlug}`}>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -116,6 +132,7 @@ export default function NewsSection({
                 <Image
                   src={featuredImage}
                   fill
+                  unoptimized
                   alt={featuredTitle}
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -142,16 +159,33 @@ export default function NewsSection({
                 ? post.excerptAr || post.excerptEn || post.excerpt
                 : post.excerptEn || post.excerptAr || post.excerpt;
 
-              const cardDate = post.date || (isRtl ? "منذ أيام" : "Recent");
-              const cardImage = post.featuredImageUrl || post.image || "/news/news1.avif";
+              const cardDate =
+                post.date ||
+                (post.publishedAt
+                  ? new Date(post.publishedAt).toLocaleDateString(
+                      isRtl ? "ar-EG" : "en-US",
+                      { month: "long", day: "numeric", year: "numeric" }
+                    )
+                  : isRtl
+                  ? "منذ أيام"
+                  : "Recent");
+
+              const cardImage =
+                post.featuredImage?.url ||
+                post.featuredImageUrl ||
+                post.image ||
+                "/news/news1.avif";
+
               const cardCategory = isRtl
-                ? post.category?.nameAr || "أخبار"
-                : post.category?.nameEn || "News";
+                ? post.category?.nameAr || post.pageCategory?.nameAr || "أخبار"
+                : post.category?.nameEn || post.pageCategory?.nameEn || "News";
+
+              const cardSlug = post.slug || post.id;
 
               return (
                 <motion.div key={post.id || idx} variants={fadeUp} className="group h-full">
                   <Link
-                    href={`/blog/post-${post.id}`}
+                    href={`/blog/post/${cardSlug}`}
                     className="block bg-white dark:bg-[#161412] rounded-2xl overflow-hidden border border-[#E5DCCB] dark:border-[#2E2A24] hover:border-[#B88A2B]/40 dark:hover:border-[#C5A059]/40 transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)] hover:shadow-xl hover:-translate-y-1.5 flex flex-col justify-between h-full"
                   >
                     {/* Image Top Container */}
@@ -159,6 +193,7 @@ export default function NewsSection({
                       <Image
                         src={cardImage}
                         fill
+                        unoptimized
                         alt={cardTitle}
                         className="object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
                       />

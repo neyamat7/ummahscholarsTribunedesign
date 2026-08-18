@@ -26,14 +26,20 @@ export default function LatestBlogsSection({ posts = [] }) {
     : featuredPost.excerptEn || featuredPost.excerptAr || featuredPost.excerpt;
 
   const featuredCategory = isRtl
-    ? featuredPost.category?.nameAr || "دراسات"
-    : featuredPost.category?.nameEn || "Studies";
+    ? featuredPost.category?.nameAr || featuredPost.pageCategory?.nameAr || "دراسات"
+    : featuredPost.category?.nameEn || featuredPost.pageCategory?.nameEn || "Studies";
 
   const featuredAuthor = isRtl
-    ? featuredPost.author?.nameAr || "هيئة التحرير"
-    : featuredPost.author?.nameEn || "Editorial Board";
+    ? featuredPost.author?.nameAr || featuredPost.author?.name || "هيئة التحرير"
+    : featuredPost.author?.nameEn || featuredPost.author?.name || "Editorial Board";
 
-  const featuredImage = featuredPost.featuredImageUrl || featuredPost.image || "/news/news1.avif";
+  const featuredImage =
+    featuredPost.featuredImage?.url ||
+    featuredPost.featuredImageUrl ||
+    featuredPost.image ||
+    "/news/news1.avif";
+
+  const featuredSlug = featuredPost.slug || featuredPost.id;
 
   // Promo card blog post details (posts[1])
   const promoTitle = isRtl
@@ -45,8 +51,10 @@ export default function LatestBlogsSection({ posts = [] }) {
     : promoPost.excerptEn || promoPost.excerptAr || promoPost.excerpt;
 
   const promoCategory = isRtl
-    ? promoPost.category?.nameAr || "آراء وتطلعات"
-    : promoPost.category?.nameEn || "Featured Spotlight";
+    ? promoPost.category?.nameAr || promoPost.pageCategory?.nameAr || "آراء وتطلعات"
+    : promoPost.category?.nameEn || promoPost.pageCategory?.nameEn || "Featured Spotlight";
+
+  const promoSlug = promoPost.slug || promoPost.id;
 
   return (
     <section className="py-12 bg-[#F7F4EE] dark:bg-[#0F0D0B] transition-colors overflow-hidden">
@@ -90,11 +98,12 @@ export default function LatestBlogsSection({ posts = [] }) {
         >
           {/* LEFT: Featured/Primary Article (lg:col-span-2, grabs full section height) */}
           <motion.div variants={fadeUp} className="lg:col-span-2 group h-full">
-            <Link href={`/blog/post-${featuredPost.id}`} className="block h-full">
+            <Link href={`/blog/post/${featuredSlug}`} className="block h-full">
               <div className="relative h-full min-h-[360px] sm:min-h-[400px] w-full rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-all bg-[#1A1714] flex flex-col justify-between p-6 sm:p-8">
                 <Image
                   src={featuredImage}
                   fill
+                  unoptimized
                   alt={featuredTitle}
                   className="object-cover group-hover:scale-103 transition-transform duration-500"
                 />
@@ -159,7 +168,7 @@ export default function LatestBlogsSection({ posts = [] }) {
                 </span>
               </div>
 
-              <Link href={`/blog/post-${promoPost.id}`}>
+              <Link href={`/blog/post/${promoSlug}`}>
                 <h4 className="font-serif font-bold text-base text-[#1C1917] dark:text-[#F5F1E8] group-hover:text-[#B88A2B] dark:group-hover:text-[#C5A059] transition-colors leading-snug mb-1.5">
                   {promoTitle}
                 </h4>
@@ -181,19 +190,25 @@ export default function LatestBlogsSection({ posts = [] }) {
                     : post.titleEn || post.titleAr || post.title;
 
                   const category = isRtl
-                    ? post.category?.nameAr || "مقالات"
-                    : post.category?.nameEn || "Articles";
+                    ? post.category?.nameAr || post.pageCategory?.nameAr || "مقالات"
+                    : post.category?.nameEn || post.pageCategory?.nameEn || "Articles";
 
                   const author = isRtl
-                    ? post.author?.nameAr || "باحث"
-                    : post.author?.nameEn || "Scholar";
+                    ? post.author?.nameAr || post.author?.name || "باحث"
+                    : post.author?.nameEn || post.author?.name || "Scholar";
 
-                  const image = post.featuredImageUrl || post.image || "/news/news1.avif";
+                  const image =
+                    post.featuredImage?.url ||
+                    post.featuredImageUrl ||
+                    post.image ||
+                    "/news/news1.avif";
+
+                  const postSlug = post.slug || post.id;
 
                   return (
                     <motion.div key={post.id || idx} variants={fadeUp}>
                       <Link
-                        href={`/blog/post-${post.id}`}
+                        href={`/blog/post/${postSlug}`}
                         className="p-3 rounded-lg hover:bg-[#E5DCCB]/30 dark:hover:bg-[#1C1917] transition-colors block group flex items-center gap-3.5"
                       >
                         {/* Square Thumbnail */}
@@ -201,6 +216,7 @@ export default function LatestBlogsSection({ posts = [] }) {
                           <Image
                             src={image}
                             fill
+                            unoptimized
                             alt={title}
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
