@@ -2,6 +2,7 @@ import { Fraunces, Inter, Amiri, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import "./style.css";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { AuthProvider } from "@/context/AuthContext";
 import FontLoader from "@/components/FontLoader";
 
 const fraunces = Fraunces({
@@ -71,8 +72,10 @@ export default function RootLayout({ children }) {
         className={`${fraunces.variable} ${inter.variable} ${amiri.variable} ${ibmPlexArabic.variable} antialiased bg-[#FBF9F6] dark:bg-[#0F0D0B] text-[#1A1714] dark:text-[#F5F1E8] transition-colors duration-300`}
       >
         <LanguageProvider>
-          <FontLoader />
-          {children}
+          <AuthProvider>
+            <FontLoader />
+            {children}
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>
