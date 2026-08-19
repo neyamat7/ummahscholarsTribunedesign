@@ -363,3 +363,161 @@ export async function togglePostBookmark(postId, userId) {
     body: JSON.stringify({ postId, userId }),
   });
 }
+
+/**
+ * Register a new visitor user
+ * @param {Object} data
+ * @param {string} data.name
+ * @param {string} data.email
+ * @param {string} data.password
+ * @returns {Promise<{ accessToken: string, user: Object }>}
+ */
+export async function registerUser({ name, email, password }) {
+  const url = `${API_BASE_URL.replace(/\/$/, "")}/users/register`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ name, email, password }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const errorMsg = Array.isArray(data.message) ? data.message.join(", ") : (data.message || "Registration failed");
+    throw new Error(errorMsg);
+  }
+  return data.data || data;
+}
+
+/**
+ * Login a visitor user with email and password
+ * @param {Object} data
+ * @param {string} data.email
+ * @param {string} data.password
+ * @returns {Promise<{ accessToken: string, user: Object }>}
+ */
+export async function loginUser({ email, password }) {
+  const url = `${API_BASE_URL.replace(/\/$/, "")}/users/login`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const errorMsg = Array.isArray(data.message) ? data.message.join(", ") : (data.message || "Invalid email or password");
+    throw new Error(errorMsg);
+  }
+  return data.data || data;
+}
+
+/**
+ * Fetch current user profile with JWT token
+ * @param {string} [token]
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchCurrentUserProfile(token) {
+  const activeToken = token || (typeof window !== "undefined" ? localStorage.getItem("scholar_auth_token") : null);
+  if (!activeToken) return null;
+
+  const url = `${API_BASE_URL.replace(/\/$/, "")}/users/me`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${activeToken}`,
+      },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.data || data;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Fetch user's bookmarked posts
+ * @param {string} userId
+ * @param {number} [page=1]
+ * @param {number} [limit=20]
+ * @returns {Promise<{ data: Array, meta: Object }>}
+ */
+export async function fetchUserBookmarks(userId, page = 1, limit = 20) {
+  if (!userId) return { data: [], meta: { total: 0 } };
+  const res = await fetchApi(`/users/${userId}/bookmarks?page=${page}&limit=${limit}`);
+  if (!res) return { data: [], meta: { total: 0 } };
+  return {
+    data: Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : [],
+    meta: res.meta || { total: (res.data || res || []).length },
+  };
+}
+
+/**
+ * Fetch user's liked posts
+ * @param {string} userId
+ * @param {number} [page=1]
+ * @param {number} [limit=20]
+ * @returns {Promise<{ data: Array, meta: Object }>}
+ */
+export async function fetchUserLikes(userId, page = 1, limit = 20) {
+  if (!userId) return { data: [], meta: { total: 0 } };
+  const res = await fetchApi(`/users/${userId}/likes?page=${page}&limit=${limit}`);
+  if (!res) return { data: [], meta: { total: 0 } };
+  return {
+    data: Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : [],
+    meta: res.meta || { total: (res.data || res || []).length },
+  };
+}
+
+/**
+ * Fetch user's comments
+ * @param {string} userId
+ * @param {number} [page=1]
+ * @param {number} [limit=20]
+ * @returns {Promise<{ data: Array, meta: Object }>}
+ */
+export async function fetchUserComments(userId, page = 1, limit = 20) {
+  if (!userId) return { data: [], meta: { total: 0 } };
+  const res = await fetchApi(`/users/${userId}/comments?page=${page}&limit=${limit}`);
+  if (!res) return { data: [], meta: { total: 0 } };
+  return {
+    data: Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : [],
+    meta: res.meta || { total: (res.data || res || []).length },
+  };
+}
+
+/**
+ * Update current visitor user profile (name, avatarUrl)
+ * @param {Object} data
+ * @param {string} [data.name]
+ * @param {string} [data.avatarUrl]
+ * @returns {Promise<Object>}
+ */
+export async function updateUserProfile({ name, avatarUrl }) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("scholar_auth_token") : null;
+  if (!token) throw new Error("Authentication required");
+
+  const url = `${API_BASE_URL.replace(/\/$/, "")}/users/me`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name, avatarUrl }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const errorMsg = Array.isArray(data.message)
+      ? data.message.join(", ")
+      : data.message || "Failed to update profile";
+    throw new Error(errorMsg);
+  }
+  return data.data || data;
+}
+
+

@@ -15,11 +15,14 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import { togglePostLike, togglePostBookmark } from "@/lib/api";
 import AuthModal from "@/components/auth/AuthModal";
 
 export default function StickyActionRail({ post, initialLikes = 0, initialBookmarks = 0 }) {
   const { isRtl } = useLanguage();
+  const { user } = useAuth();
+
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -27,7 +30,6 @@ export default function StickyActionRail({ post, initialLikes = 0, initialBookma
   const [copied, setCopied] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState("like");
-  const [user, setUser] = useState(null);
   const shareRef = useRef(null);
 
   // Close share popover on outside click
@@ -45,9 +47,6 @@ export default function StickyActionRail({ post, initialLikes = 0, initialBookma
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("scholar_visitor_user");
-      if (stored) setUser(JSON.parse(stored));
-
       const likedPosts = JSON.parse(localStorage.getItem("scholar_liked_posts") || "{}");
       const bookmarkedPosts = JSON.parse(localStorage.getItem("scholar_bookmarked_posts") || "{}");
       if (likedPosts[post.id]) setIsLiked(true);
@@ -99,10 +98,11 @@ export default function StickyActionRail({ post, initialLikes = 0, initialBookma
   };
 
   const handleAuthSuccess = (loggedUser) => {
-    setUser(loggedUser);
     setAuthModalOpen(false);
-    if (pendingAction === "like") handleLike();
-    if (pendingAction === "save") handleBookmark();
+    if (loggedUser) {
+      if (pendingAction === "like") handleLike();
+      if (pendingAction === "save") handleBookmark();
+    }
   };
 
   const handleCopyLink = () => {
@@ -118,7 +118,7 @@ export default function StickyActionRail({ post, initialLikes = 0, initialBookma
 
   return (
     <>
-      {/* Desktop Viewport-Fixed Vertical Action Rail (At the far left edge of the whole screen) */}
+      {/* Desktop Viewport-Fixed Vertical Action Rail */}
       <aside
         aria-label="Article Actions"
         className={`hidden lg:flex fixed top-1/2 -translate-y-1/2 ${
@@ -164,7 +164,7 @@ export default function StickyActionRail({ post, initialLikes = 0, initialBookma
 
         <div className="w-6 h-px bg-[#E5DCCB]/80 dark:bg-[#2E2A24]/80" />
 
-        {/* Share Button & High Z-Index Popover */}
+        {/* Share Button & Popover */}
         <div ref={shareRef} className="relative">
           <button
             onClick={() => setIsShareOpen((p) => !p)}
@@ -263,7 +263,7 @@ export default function StickyActionRail({ post, initialLikes = 0, initialBookma
         </div>
       </aside>
 
-      {/* Mobile Fixed Bottom Dock (Visible only on mobile/tablet screens) */}
+      {/* Mobile Fixed Bottom Dock */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#1A1714]/95 backdrop-blur-md border-t border-[#E5DCCB] dark:border-[#2E2A24] px-6 py-2.5 flex items-center justify-around shadow-lg">
         {/* Like */}
         <button

@@ -126,6 +126,7 @@ export default function ArticleBody({ post, onHeadingsFound, onActiveHeadingChan
           [&>blockquote]:my-8 [&>blockquote]:p-6 [&>blockquote]:rounded-2xl [&>blockquote]:bg-[#FAF0D7]/50 [&>blockquote]:dark:bg-[#1A1714] [&>blockquote]:border-s-4 [&>blockquote]:border-[#B88A2B] [&>blockquote]:dark:border-[#C5A059] [&>blockquote]:font-serif [&>blockquote]:italic [&>blockquote]:text-lg [&>blockquote]:text-[#1C1917] [&>blockquote]:dark:text-[#F5F1E8]
           [&>img]:rounded-2xl [&>img]:my-8 [&>img]:cursor-zoom-in [&>img]:shadow-md [&>img]:border [&>img]:border-[#E5DCCB] [&>img]:dark:border-[#2E2A24]
           [&_a]:text-[#B88A2B] [&_a]:dark:text-[#C5A059] [&_a]:font-semibold [&_a]:underline [&_a]:underline-offset-4
+          [&_mark]:rounded-md [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:text-[#1C1917] [&_mark]:box-decoration-clone
         "
       />
 
