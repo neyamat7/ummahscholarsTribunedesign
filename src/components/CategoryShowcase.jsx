@@ -92,6 +92,7 @@ function ShowcaseImage({ post, index, scrollYProgress, isRtl, title }) {
   const badgeY = useTransform(scrollYProgress, [0.55, 0.75], [10, 0]);
 
   const slug = post.slug || post.id;
+  const pageCategorySlug = post.pageCategory?.slug || post.category?.slug || "research-studies";
 
   return (
     <motion.div
@@ -99,7 +100,7 @@ function ShowcaseImage({ post, index, scrollYProgress, isRtl, title }) {
       className="absolute w-[46%] sm:w-[38%] lg:w-[26%] max-w-[300px]"
     >
       <Link
-        href={`/blog/post/${slug}`}
+        href={`/${pageCategorySlug}/${slug}`}
         className="group block relative rounded-2xl overflow-hidden shadow-lg shadow-black/10 border border-white/40 dark:border-white/10 transition-transform duration-300 hover:scale-[1.03]"
       >
         <div className="relative w-full aspect-[4/3] bg-neutral-200 dark:bg-neutral-800">
@@ -259,12 +260,13 @@ function StaticShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
           const postTitle = isRtl
             ? post.titleAr || post.titleEn || post.title
             : post.titleEn || post.titleAr || post.title;
-          return (
-            <Link
-              key={post.id}
-              href={`/blog/post/${post.slug || post.id}`}
-              className="group relative rounded-2xl overflow-hidden shadow-md border border-black/5 dark:border-white/10"
-            >
+            const mobilePageCat = post.pageCategory?.slug || post.category?.slug || "research-studies";
+            return (
+              <Link
+                key={post.id}
+                href={`/${mobilePageCat}/${post.slug || post.id}`}
+                className="group relative rounded-2xl overflow-hidden shadow-md border border-black/5 dark:border-white/10"
+              >
               <div className="relative w-full aspect-[4/3] bg-neutral-200 dark:bg-neutral-800">
                 <Image
                   src={post.featuredImage?.url || post.image || post.featuredImageUrl || "/news/news1.avif"}

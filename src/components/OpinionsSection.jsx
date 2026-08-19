@@ -36,6 +36,7 @@ function BlogCard({ post, isRtl, featured = false }) {
       : "");
 
   const slug = post.slug || post.id;
+  const pageCategorySlug = post.pageCategory?.slug || "opinions-perspectives";
 
   return (
     <motion.div
@@ -43,7 +44,7 @@ function BlogCard({ post, isRtl, featured = false }) {
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
       className="group h-full"
     >
-      <Link href={`/blog/post/${slug}`} className="flex flex-col h-full">
+      <Link href={`/${pageCategorySlug}/${slug}`} className="flex flex-col h-full">
         {/* Image */}
         <div
           className={`relative w-full overflow-hidden rounded-2xl bg-[#EDE6D6] dark:bg-[#1A1714] ${

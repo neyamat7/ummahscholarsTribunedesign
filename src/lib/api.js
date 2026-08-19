@@ -220,3 +220,146 @@ export async function fetchLatestPosts(limit = 5) {
   });
   return posts;
 }
+
+/**
+ * Fetch single post by ID or Slug
+ * @param {string} idOrSlug
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchPostBySlug(idOrSlug) {
+  if (!idOrSlug) return null;
+  const post = await fetchApi(`/posts/${idOrSlug}`);
+  if (!post) return null;
+  return normalizePost(post);
+}
+
+/**
+ * Fetch related posts from the same category or page category with smart fallback
+ * @param {Object} options
+ * @param {string} [options.categoryId]
+ * @param {string} [options.pageCategory]
+ * @param {string} [options.currentPostId]
+ * @param {number} [options.limit=3]
+ * @returns {Promise<Array>}
+ */
+export async function fetchRelatedPosts({ categoryId, pageCategory, currentPostId, limit = 3 }) {
+  let related = [];
+
+  // Step 1: Try fetching from the same pageCategory
+  if (pageCategory) {
+    const { posts } = await fetchPosts({
+      pageCategory,
+      status: "PUBLISHED",
+      limit: limit + 2,
+      sort: "newest",
+    });
+    related = posts.filter((p) => p.id !== currentPostId && p.slug !== currentPostId);
+  } else if (categoryId) {
+    const { posts } = await fetchPosts({
+      category: categoryId,
+      status: "PUBLISHED",
+      limit: limit + 2,
+      sort: "newest",
+    });
+    related = posts.filter((p) => p.id !== currentPostId && p.slug !== currentPostId);
+  }
+
+  // Step 2: If fewer than limit posts found, backfill with recent published posts
+  if (related.length < limit) {
+    const { posts: fallbackPosts } = await fetchPosts({
+      status: "PUBLISHED",
+      limit: limit + 5,
+      sort: "newest",
+    });
+
+    const seenIds = new Set(related.map((p) => p.id).concat([currentPostId]));
+    for (const post of fallbackPosts) {
+      if (!seenIds.has(post.id) && post.slug !== currentPostId) {
+        related.push(post);
+        seenIds.add(post.id);
+      }
+      if (related.length >= limit) break;
+    }
+  }
+
+  return related.slice(0, limit);
+}
+
+/**
+ * Fetch approved comments for a post
+ * @param {string} postIdOrSlug
+ * @param {number} [page=1]
+ * @param {number} [limit=50]
+ * @returns {Promise<{ comments: Array, total: number }>}
+ */
+export async function fetchPostComments(postIdOrSlug, page = 1, limit = 50) {
+  if (!postIdOrSlug) return { comments: [], total: 0 };
+  const res = await fetchApi(`/comments/post/${postIdOrSlug}?page=${page}&limit=${limit}`);
+  if (!res) return { comments: [], total: 0 };
+
+  const data = Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : [];
+  return {
+    comments: data,
+    total: res.meta?.total || data.length,
+  };
+}
+
+/**
+ * Submit a comment on a post (supports guest and authenticated users)
+ * @param {Object} data
+ * @param {string} data.postId
+ * @param {string} [data.parentId]
+ * @param {string} data.content
+ * @param {string} [data.authorName]
+ * @param {string} [data.authorEmail]
+ * @param {string} [data.userId]
+ * @returns {Promise<Object|null>}
+ */
+export async function createPostComment(data) {
+  return fetchApi('/comments', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Record view count on post
+ * @param {string} postIdOrSlug
+ * @returns {Promise<void>}
+ */
+export async function recordPostView(postIdOrSlug) {
+  if (!postIdOrSlug) return;
+  try {
+    await fetchApi(`/posts/${postIdOrSlug}/view`, {
+      method: 'POST',
+    });
+  } catch (e) {
+    // Non-critical, ignore error
+  }
+}
+
+/**
+ * Toggle like for a post
+ * @param {string} postId
+ * @param {string} userId
+ * @returns {Promise<{ liked: boolean, count: number }|null>}
+ */
+export async function togglePostLike(postId, userId) {
+  return fetchApi('/likes/toggle', {
+    method: 'POST',
+    body: JSON.stringify({ postId, userId }),
+  });
+}
+
+/**
+ * Toggle bookmark for a post
+ * @param {string} postId
+ * @param {string} userId
+ * @returns {Promise<{ bookmarked: boolean, count: number }|null>}
+ */
+export async function togglePostBookmark(postId, userId) {
+  return fetchApi('/bookmarks/toggle', {
+    method: 'POST',
+    body: JSON.stringify({ postId, userId }),
+  });
+}

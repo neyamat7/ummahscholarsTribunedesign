@@ -71,9 +71,10 @@ export default function UpcomingEvents({ events = [] }) {
             const isOnline = event.isOnline !== undefined ? event.isOnline : idx % 2 === 1;
 
             const slug = event.slug || event.id;
+            const pageCat = event.pageCategory?.slug || "events-initiatives";
             const targetUrl = event.slug
-              ? `/blog/post/${slug}`
-              : `/blog/events-initiatives`;
+              ? `/${pageCat}/${slug}`
+              : `/${pageCat}`;
 
             // Vibrant tile color variants for distinct visual hierarchy
             const tileBg =
