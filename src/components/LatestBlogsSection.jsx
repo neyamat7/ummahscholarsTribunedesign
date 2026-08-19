@@ -98,7 +98,7 @@ export default function LatestBlogsSection({ posts = [] }) {
         >
           {/* LEFT: Featured/Primary Article (lg:col-span-2, grabs full section height) */}
           <motion.div variants={fadeUp} className="lg:col-span-2 group h-full">
-            <Link href={`/blog/post/${featuredSlug}`} className="block h-full">
+            <Link href={`/${featuredPost.pageCategory?.slug || "research-studies"}/${featuredSlug}`} className="block h-full">
               <div className="relative h-full min-h-[360px] sm:min-h-[400px] w-full rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-all bg-[#1A1714] flex flex-col justify-between p-6 sm:p-8">
                 <Image
                   src={featuredImage}
@@ -168,7 +168,7 @@ export default function LatestBlogsSection({ posts = [] }) {
                 </span>
               </div>
 
-              <Link href={`/blog/post/${promoSlug}`}>
+              <Link href={`/${promoPost.pageCategory?.slug || "research-studies"}/${promoSlug}`}>
                 <h4 className="font-serif font-bold text-base text-[#1C1917] dark:text-[#F5F1E8] group-hover:text-[#B88A2B] dark:group-hover:text-[#C5A059] transition-colors leading-snug mb-1.5">
                   {promoTitle}
                 </h4>
@@ -204,11 +204,12 @@ export default function LatestBlogsSection({ posts = [] }) {
                     "/news/news1.avif";
 
                   const postSlug = post.slug || post.id;
+                  const sidebarPageCat = post.pageCategory?.slug || "research-studies";
 
                   return (
                     <motion.div key={post.id || idx} variants={fadeUp}>
                       <Link
-                        href={`/blog/post/${postSlug}`}
+                        href={`/${sidebarPageCat}/${postSlug}`}
                         className="p-3 rounded-lg hover:bg-[#E5DCCB]/30 dark:hover:bg-[#1C1917] transition-colors block group flex items-center gap-3.5"
                       >
                         {/* Square Thumbnail */}

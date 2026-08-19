@@ -87,7 +87,7 @@ export default function NewsSection({
                 </div>
 
                 {/* Post Title */}
-                <Link href={`/blog/post/${featuredSlug}`}>
+                <Link href={`/${featuredPost.pageCategory?.slug || "news-announcements"}/${featuredSlug}`}>
                   <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#F5F1E8] leading-tight hover:text-[#C5A059] transition-colors">
                     {featuredTitle}
                   </h3>
@@ -103,7 +103,7 @@ export default function NewsSection({
 
               {/* Gold Pill CTA Button */}
               <div>
-                <Link href={`/blog/post/${featuredSlug}`}>
+                <Link href={`/${featuredPost.pageCategory?.slug || "news-announcements"}/${featuredSlug}`}>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -181,11 +181,12 @@ export default function NewsSection({
                 : post.category?.nameEn || post.pageCategory?.nameEn || "News";
 
               const cardSlug = post.slug || post.id;
+              const cardPageCat = post.pageCategory?.slug || "news-announcements";
 
               return (
                 <motion.div key={post.id || idx} variants={fadeUp} className="group h-full">
                   <Link
-                    href={`/blog/post/${cardSlug}`}
+                    href={`/${cardPageCat}/${cardSlug}`}
                     className="block bg-white dark:bg-[#161412] rounded-2xl overflow-hidden border border-[#E5DCCB] dark:border-[#2E2A24] hover:border-[#B88A2B]/40 dark:hover:border-[#C5A059]/40 transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)] hover:shadow-xl hover:-translate-y-1.5 flex flex-col justify-between h-full"
                   >
                     {/* Image Top Container */}

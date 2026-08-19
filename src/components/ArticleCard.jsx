@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -21,6 +22,13 @@ export default function ArticleCard({ item }) {
   const categoryName = isRtl
     ? item.category?.nameAr || item.categoryNameAr || item.category || "بحوث"
     : item.category?.nameEn || item.categoryNameEn || item.category || "Research";
+
+  const pageCategorySlug =
+    item.pageCategory?.slug ||
+    (item.category?.type === "PAGE" ? item.category?.slug : null) ||
+    "research-studies";
+
+  const postLink = `/${pageCategorySlug}/${item.slug || item.id}`;
 
   // Category badge color mapping
   const getBadgeStyle = (cat) => {
@@ -43,11 +51,12 @@ export default function ArticleCard({ item }) {
     : item.date || "2026";
 
   return (
-    <motion.article
-      whileHover={cardHoverAnimation}
-      className="group bg-white dark:bg-[#1A1714] border border-[#E5DCCB] dark:border-[#2E2A24] rounded-2xl shadow-xs hover:shadow-md hover:border-[#B88A2B]/50 dark:hover:border-[#C5A059]/50 transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer"
-    >
-      <div>
+    <Link href={postLink} className="block h-full">
+      <motion.article
+        whileHover={cardHoverAnimation}
+        className="group bg-white dark:bg-[#1A1714] border border-[#E5DCCB] dark:border-[#2E2A24] rounded-2xl shadow-xs hover:shadow-md hover:border-[#B88A2B]/50 dark:hover:border-[#C5A059]/50 transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer h-full"
+      >
+        <div>
         {/* Article Featured Image */}
         <div className="relative w-full h-48 overflow-hidden bg-[#FAF0D7] dark:bg-[#262118]">
           <Image
@@ -93,5 +102,6 @@ export default function ArticleCard({ item }) {
         </span>
       </div>
     </motion.article>
+    </Link>
   );
 }
