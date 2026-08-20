@@ -412,12 +412,20 @@ export async function loginUser({ email, password }) {
 }
 
 /**
+ * Helper to retrieve stored auth token from localStorage or sessionStorage
+ */
+export function getAuthToken() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("scholar_auth_token") || sessionStorage.getItem("scholar_auth_token");
+}
+
+/**
  * Fetch current user profile with JWT token
  * @param {string} [token]
  * @returns {Promise<Object|null>}
  */
 export async function fetchCurrentUserProfile(token) {
-  const activeToken = token || (typeof window !== "undefined" ? localStorage.getItem("scholar_auth_token") : null);
+  const activeToken = token || getAuthToken();
   if (!activeToken) return null;
 
   const url = `${API_BASE_URL.replace(/\/$/, "")}/users/me`;
@@ -496,7 +504,7 @@ export async function fetchUserComments(userId, page = 1, limit = 20) {
  * @returns {Promise<Object>}
  */
 export async function updateUserProfile({ name, avatarUrl }) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("scholar_auth_token") : null;
+  const token = getAuthToken();
   if (!token) throw new Error("Authentication required");
 
   const url = `${API_BASE_URL.replace(/\/$/, "")}/users/me`;

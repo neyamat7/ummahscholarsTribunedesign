@@ -19,6 +19,7 @@ export default function AuthModal({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -37,10 +38,10 @@ export default function AuthModal({
           setLoading(false);
           return;
         }
-        const loggedUser = await register({ name, email, password });
+        const loggedUser = await register({ name, email, password, rememberMe });
         if (onClose) onClose(loggedUser);
       } else {
-        const loggedUser = await login({ email, password });
+        const loggedUser = await login({ email, password, rememberMe });
         if (onClose) onClose(loggedUser);
       }
     } catch (err) {
@@ -71,7 +72,7 @@ export default function AuthModal({
     }
     return {
       title: isSignUp
-        ? (isRtl ? "إنشاء حساب قارئ وباحث" : "Join Ummah Scholars Tribune")
+        ? (isRtl ? "انضم إلى منبر علماء الأمة (UST)" : "Join Ummah Scholars Tribune (UST)")
         : (isRtl ? "تسجيل الدخول إلى حسابك" : "Welcome Back, Scholar"),
       desc: isRtl
         ? "بوابتك لمتابعة الدراسات والأبحاث الإسلامية والمقالات الفكرية الرصينة."
@@ -230,6 +231,21 @@ export default function AuthModal({
                   {isRtl ? "يجب أن تحتوي على 6 أحرف على الأقل" : "Must be at least 6 characters"}
                 </p>
               )}
+            </div>
+
+            {/* REMEMBER ME CHECKBOX */}
+            <div className="flex items-center justify-between pt-0.5">
+              <label className="flex items-center gap-2 cursor-pointer select-none group">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-3.5 h-3.5 rounded border-[#E5DCCB] dark:border-[#2E2A24] text-[#B88A2B] dark:text-[#C5A059] focus:ring-[#B88A2B] cursor-pointer accent-[#B88A2B]"
+                />
+                <span className="text-xs text-[#78716C] dark:text-[#A39B8B] group-hover:text-[#1C1917] dark:group-hover:text-[#F5F1E8] transition-colors">
+                  {isRtl ? "تذكر هذا الجهاز" : "Remember this device"}
+                </span>
+              </label>
             </div>
 
             <button
