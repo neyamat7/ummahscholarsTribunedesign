@@ -74,9 +74,17 @@ export default async function Home() {
   ]);
 
   // Filter POST categories for the "Pillars of Scholarly Inquiry" section
-  const postCategories = (allCategories || []).filter(
+  // Display rule: exactly 7 categories — latest pinned first, then remaining filled from latest
+  const allPostCategories = (allCategories || []).filter(
     (c) => (c.type || "").toUpperCase() === "POST"
   );
+  const pinnedCategories = allPostCategories
+    .filter((c) => Boolean(c.isPinned))
+    .sort((a, b) => new Date(b.pinnedAt || b.updatedAt || b.createdAt).getTime() - new Date(a.pinnedAt || a.updatedAt || a.createdAt).getTime());
+  const unpinnedCategories = allPostCategories
+    .filter((c) => !c.isPinned)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const postCategories = [...pinnedCategories, ...unpinnedCategories].slice(0, 7);
 
   // Pad each section with dummy cards if there are fewer posts than required
   const researchPosts = ensurePostCount(

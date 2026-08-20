@@ -53,10 +53,10 @@ function resolveCategoryIcon(iconName, fallbackIcon = LucideIcons.BookOpen) {
 export default function ResearchFeatures({ categories = [] }) {
   const { isRtl } = useLanguage();
 
-  // Filter to show ONLY POST categories (topic categories)
-  const postCategories = (categories || []).filter(
-    (c) => (c.type || "").toUpperCase() === "POST"
-  );
+  // Filter to show ONLY POST categories (topic categories) - capped at exactly 7 items
+  const postCategories = (categories || [])
+    .filter((c) => (c.type || "").toUpperCase() === "POST")
+    .slice(0, 7);
 
   // If no categories passed, do not render empty section
   if (postCategories.length === 0) {
@@ -170,6 +170,12 @@ export default function ResearchFeatures({ categories = [] }) {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {cat.isPinned && (
+                          <span className="text-[10px] font-bold text-[#B88A2B] dark:text-[#C5A059] bg-[#FAF0D7] dark:bg-[#262118] px-2 py-0.5 rounded-full flex items-center gap-1 border border-[#B88A2B]/30" title={isRtl ? "قسم مثبت" : "Pinned Pillar"}>
+                            <LucideIcons.Pin size={10} className="fill-[#B88A2B] dark:fill-[#C5A059]" />
+                            <span>{isRtl ? "مثبت" : "Pinned"}</span>
+                          </span>
+                        )}
                         <span className="text-xs font-mono font-bold text-[#B88A2B] dark:text-[#A39B8B]/60 bg-[#FAF0D7] dark:bg-[#262118] px-2.5 py-1 rounded-md">
                           {displayIndex}
                         </span>
