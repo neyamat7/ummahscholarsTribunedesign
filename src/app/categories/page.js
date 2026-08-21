@@ -71,7 +71,7 @@ export default async function CategoriesPage() {
         "@type": "ListItem",
         position: idx + 1,
         name: cat.nameEn || cat.nameAr || "Category",
-        url: `https://ummahscholar.com/blog/${cat.slug}`,
+        url: `https://ummahscholar.com/categories/${cat.slug}`,
       })),
     },
   };

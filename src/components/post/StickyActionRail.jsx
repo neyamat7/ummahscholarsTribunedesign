@@ -18,6 +18,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { togglePostLike, togglePostBookmark } from "@/lib/api";
 import AuthModal from "@/components/auth/AuthModal";
+import { toast } from "sonner";
 
 export default function StickyActionRail({ post, initialLikes = 0, initialBookmarks = 0 }) {
   const { isRtl } = useLanguage();
@@ -73,6 +74,15 @@ export default function StickyActionRail({ post, initialLikes = 0, initialBookma
       await togglePostLike(post.id, user.id);
     } catch (err) {
       console.error("Like toggle error:", err);
+      // Rollback optimistic state
+      setIsLiked(!nextState);
+      setLikesCount((prev) => (!nextState ? prev + 1 : Math.max(0, prev - 1)));
+      const likedPosts = JSON.parse(localStorage.getItem("scholar_liked_posts") || "{}");
+      likedPosts[post.id] = !nextState;
+      localStorage.setItem("scholar_liked_posts", JSON.stringify(likedPosts));
+      toast.error(
+        err.message || (isRtl ? "تم حظر حسابك ولا يمكنك الإعجاب بالمقالات." : "Your account has been blocked and cannot like posts.")
+      );
     }
   };
 
@@ -94,6 +104,14 @@ export default function StickyActionRail({ post, initialLikes = 0, initialBookma
       await togglePostBookmark(post.id, user.id);
     } catch (err) {
       console.error("Bookmark toggle error:", err);
+      // Rollback optimistic state
+      setIsBookmarked(!nextState);
+      const bookmarkedPosts = JSON.parse(localStorage.getItem("scholar_bookmarked_posts") || "{}");
+      bookmarkedPosts[post.id] = !nextState;
+      localStorage.setItem("scholar_bookmarked_posts", JSON.stringify(bookmarkedPosts));
+      toast.error(
+        err.message || (isRtl ? "تم حظر حسابك ولا يمكنك حفظ المقالات." : "Your account has been blocked and cannot bookmark posts.")
+      );
     }
   };
 

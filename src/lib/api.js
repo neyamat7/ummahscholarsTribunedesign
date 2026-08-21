@@ -21,9 +21,11 @@ async function fetchApi(endpoint, options = {}) {
     ? endpoint
     : `${API_BASE_URL.replace(/\/$/, "")}/${endpoint.replace(/^\//, "")}`;
 
+  const isMutation = options.method && options.method.toUpperCase() !== "GET";
+
   try {
     const res = await fetch(url, {
-      next: { revalidate: 60 }, // ISR: refresh every 60 seconds
+      next: isMutation ? undefined : { revalidate: 60 }, // ISR only for GET
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
@@ -33,8 +35,22 @@ async function fetchApi(endpoint, options = {}) {
     });
 
     if (!res.ok) {
-      console.warn(`[API] Fetch failed for ${url} (Status: ${res.status})`);
-      return null;
+      let errorMessage = `Request failed with status ${res.status}`;
+      try {
+        const errorData = await res.json();
+        if (errorData?.message) {
+          errorMessage = Array.isArray(errorData.message)
+            ? errorData.message.join(", ")
+            : errorData.message;
+        } else if (errorData?.error) {
+          errorMessage = errorData.error;
+        }
+      } catch (e) {}
+
+      console.warn(`[API] Fetch failed for ${url} (Status: ${res.status}): ${errorMessage}`);
+      const err = new Error(errorMessage);
+      err.status = res.status;
+      throw err;
     }
 
     const payload = await res.json();
@@ -46,6 +62,9 @@ async function fetchApi(endpoint, options = {}) {
 
     return payload;
   } catch (err) {
+    if (isMutation) {
+      throw err;
+    }
     console.error(`[API] Error fetching ${url}:`, err?.message || err);
     return null;
   }
@@ -166,6 +185,7 @@ export async function fetchPosts(params = {}) {
 
   if (params.pageCategory) query.set("pageCategory", params.pageCategory);
   if (params.category) query.set("category", params.category);
+  if (params.search) query.set("search", params.search);
   query.set("status", params.status || "PUBLISHED");
   if (params.limit) query.set("limit", String(params.limit));
   if (params.page) query.set("page", String(params.page));

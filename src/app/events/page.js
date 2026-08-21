@@ -1,177 +1,182 @@
-"use client";
-
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SectionHeroBanner from "@/components/section-page/SectionHeroBanner";
+import SectionInteractiveFeed from "@/components/section-page/SectionInteractiveFeed";
+import { fetchCategories, fetchPosts } from "@/lib/api";
 
-export default function EventsPage() {
-  const [activeTab, setActiveTab] = useState("Upcoming");
+/**
+ * Dynamic SEO Metadata for Events & Initiatives Page
+ */
+export async function generateMetadata() {
+  const title = "Events & Initiatives | الفعاليات والمبادرات | Ummah Scholars Tribune";
+  const description =
+    "Academic, educational, cultural, faith-inspired, humanitarian, and community engagement that translates knowledge and values into impactful initiatives and participation.";
 
-  const goldColor = "#C5A059";
-  const textColor = "#1A1A1A";
-
-  // ইভেন্টের ডামি ডাটা (বই ও একাডেমিক থিমে সাজানো)
-  const eventsData = [
-    {
-      id: 1,
-      title: "Annual Islamic Book Fair & Manuscript Exhibition",
-      date: "July 25, 2026",
-      time: "10:00 AM - 08:00 PM",
-      location: "Main Academic Hall & Library Lounge",
-      type: "Upcoming",
-      description: "Join us for a grand exhibition of classical Islamic manuscripts, newly published research journals, and interactive book discussion circles with renowned authors.",
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: "https://ummahscholar.com/events",
+      siteName: "Ummah Scholars Tribune",
+      images: [
+        {
+          url: "/events.jpeg",
+          width: 1200,
+          height: 630,
+          alt: "Events & Initiatives",
+        },
+      ],
+      type: "website",
     },
-    {
-      id: 2,
-      title: "Distribution of Educational Kits & Islamic Literature",
-      date: "August 05, 2026",
-      time: "09:00 AM",
-      location: "Community Center Auditorium",
-      type: "Upcoming",
-      description: "An initiative focused on providing academic books, essential learning tools, and foundational Islamic literature to students and families in need.",
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/events.jpeg"],
     },
-    {
-      id: 3,
-      title: "International Seminar on Classical Text Preservation",
-      date: "May 12, 2026",
-      time: "Completed",
-      location: "Online (Zoom Webinar)",
-      type: "Past",
-      description: "A successful global gathering of archivists and scholars discussing modern methodologies for digitizing and preserving ancient Islamic library texts.",
-    }
-  ];
+    alternates: {
+      canonical: "/events",
+    },
+  };
+}
 
-  // ফিল্টারিং লজিক (Upcoming বনাম Past ইভেন্ট)
-  const filteredEvents = eventsData.filter(event => event.type === activeTab);
+export default async function EventsPage() {
+  // 1. Parallel Server-Side Data Fetching
+  const [eventsPostsRes, categoriesRes, trendingRes] = await Promise.all([
+    fetchPosts({
+      pageCategory: "events-initiatives",
+      status: "PUBLISHED",
+      limit: 100,
+      sort: "newest",
+    }),
+    fetchCategories(),
+    fetchPosts({
+      status: "PUBLISHED",
+      limit: 5,
+      sort: "views",
+    }),
+  ]);
+
+  let allPosts = eventsPostsRes?.posts || [];
+  const categories = categoriesRes || [];
+  const trendingPosts = trendingRes?.posts || [];
+
+  // Fallback sample event posts if backend has no records yet
+  if (allPosts.length === 0) {
+    allPosts = [
+      {
+        id: "events-spotlight-1",
+        slug: "annual-scholarly-book-fair-manuscript-exhibition-2026",
+        titleEn: "Annual Scholarly Book Fair & Manuscript Exhibition 2026: Illuminating Classical Heritage",
+        titleAr: "المعرض السنوي للكتاب العلمي والمخطوطات 2026: إحياء التراث وتكريم أعلام الأمة",
+        excerptEn: "A grand international gathering exhibiting classical Islamic manuscripts, newly published academic treatises, and scholarly panel sessions.",
+        excerptAr: "ملتقى دولي جامع يضم معرضاً للمخطوطات النادرة وأحدث الإصدارات المحكمة وجلسات حوارية مع كبار علماء الأمة وباحثيها.",
+        contentEn: "Comprehensive programme for the annual book fair and manuscript symposium...",
+        contentAr: "البرنامج الكامل لفعاليات معرض الكتاب العلمي وندوات تحقيق التراث...",
+        publishedAt: new Date().toISOString(),
+        viewCount: 72,
+        category: { nameEn: "Conferences & Symposia", nameAr: "المؤتمرات والندوات", slug: "conferences-symposia" },
+        pageCategory: { slug: "events-initiatives" },
+        featuredImageUrl: "/events.jpeg",
+      },
+      {
+        id: "events-post-2",
+        slug: "international-symposium-classical-text-digitization",
+        titleEn: "International Symposium on Classical Text Preservation & Digital Archiving",
+        titleAr: "الندوة الدولية لرقمنة النصوص التراثية وحفظ المخطوطات القديمة",
+        excerptEn: "Archivists and computational linguists gather to establish ethical digital archives of classical library collections.",
+        excerptAr: "ندوة علمية تجمع خبراء الأرشفة الرقمية واللغويات الحاسوبية لحفظ التراث المخطوط وإتاحته للباحثين حول العالم.",
+        contentEn: "Proceedings and outcomes of the international digital archiving symposium...",
+        contentAr: "أوراق العمل والتوصيات الصادرة عن ندوة رقمنة التراث العلمي...",
+        publishedAt: new Date(Date.now() - 86400000 * 6).toISOString(),
+        viewCount: 46,
+        category: { nameEn: "Academic Initiatives", nameAr: "المبادرات العلمية", slug: "academic-initiatives" },
+        pageCategory: { slug: "events-initiatives" },
+        featuredImageUrl: "/events.jpeg",
+      },
+    ];
+  }
+
+  // 2. Select primary spotlight post (first item in the collection)
+  const spotlightPost = allPosts.length > 0 ? allPosts[0] : null;
+
+  // 3. Exclude the hero spotlight post from the below feed list so it does not duplicate
+  const feedPosts = spotlightPost
+    ? allPosts.filter(
+        (p) => p.id !== spotlightPost.id && (!spotlightPost.slug || p.slug !== spotlightPost.slug)
+      )
+    : allPosts;
+
+  // JSON-LD Structured Data Schema
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Events & Initiatives - Ummah Scholars Tribune",
+    description:
+      "Academic, educational, cultural, faith-inspired, humanitarian, and community engagement that translates knowledge and values into impactful initiatives and participation.",
+    url: "https://ummahscholar.com/events",
+    publisher: {
+      "@type": "Organization",
+      name: "Ummah Scholars Tribune",
+      url: "https://ummahscholar.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://ummahscholar.com/favicon/favicon.jpeg",
+      },
+    },
+  };
 
   return (
-    <main className="min-h-screen bg-gray-50/50">
-      {/* নেভিগেশন বার */}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
+      <main className="min-h-screen bg-[#FBF9F6] dark:bg-[#0F0D0B]">
+        {/* Events Hero Banner with Specified Bilingual Title & Description */}
+        <SectionHeroBanner
+          pageTitleEn="Events & Initiatives"
+          pageTitleAr="الفعاليات والمبادرات"
+          pageTitleHighlightEn="Initiatives"
+          pageTitleHighlightAr="والمبادرات"
+          heroDescriptionAr="حراكٌ علمي وتعليمي وثقافي ودعوي وإنساني ومجتمعي، يجسّد المعرفة والقيم في مبادراتٍ ومشاركاتٍ ذات أثر."
+          heroDescriptionEn="Academic, educational, cultural, faith-inspired, humanitarian, and community engagement that translates knowledge and values into impactful initiatives and participation."
+          pageCategorySlug="events-initiatives"
+          bgImage="/events.jpeg"
+          spotlightPost={spotlightPost}
+          badgeTextEn="Flagship Initiative"
+          badgeTextAr="مبادرة رئيسية"
+          searchPlaceholderEn="Search conferences, symposiums, and academic initiatives..."
+          searchPlaceholderAr="ابحث في المؤتمرات والندوات ومعارض الكتب والمبادرات العلمية..."
+          archiveLabelEn="Events Archive"
+          archiveLabelAr="أرشيف الفعاليات والمبادرات"
+        />
 
-     {/* ইমেজ সেকশন ছোট করা হয়েছে (কন্ট্যাক্ট পেজের মতো প্যাডিং ব্যবহার করে) */}
-<div className="relative bg-stone-950 py-20 px-6 md:px-12 text-center overflow-hidden border-b" style={{ borderColor: `${goldColor}44` }}>
-  
-  {/* ব্যাকগ্রাউন্ড বইয়ের ছবি */}
-  <div className="absolute inset-0 w-full h-full">
-    <Image
-      src="/events.jpeg" 
-      alt="Islamic Books Background"
-      fill
-      priority
-      className="opacity-45 object-cover object-center" 
-    />
-    {/* হালকা স্মুথ ওভারলে */}
-    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
-  </div>
-
-  {/* হেডার কনটেন্ট */}
-  <div className="relative z-10 max-w-2xl mx-auto">
-    <span 
-      className="text-[10px] md:text-xs font-bold uppercase tracking-[0.25em] mb-4 inline-block bg-black/40 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/10" 
-      style={{ color: goldColor }}
-    >
-      Social & Academic Initiatives
-    </span>
-    
-    <h1 className="text-2xl md:text-4xl font-serif font-bold mb-3 text-white drop-shadow-md">
-      Events & <span style={{ color: goldColor }}>Initiatives</span>
-    </h1>
-    
-    <p className="text-gray-200 text-xs md:text-sm max-w-lg mx-auto leading-relaxed drop-shadow-sm opacity-90">
-      Stay updated with our upcoming seminars, book fairs, and community welfare initiatives designed to spread knowledge and support the Ummah.
-    </p>
-  </div>
-</div>
-
-      {/* মেইন কন্টেন্ট সেকশন */}
-      <div className="w-full max-w-4xl mx-auto px-6 py-12">
-        
-        {/* ফিল্টার ট্যাব (Upcoming vs Past) */}
-        <div className="flex justify-center border-b mb-12" style={{ borderColor: `${goldColor}22` }}>
-          {["Upcoming", "Past"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className="px-8 py-3 text-sm font-medium transition-all duration-300 relative focus:outline-none -mb-[1px]"
-              style={{ color: activeTab === tab ? goldColor : '#6B7280' }}
-            >
-              {tab} Initiatives
-              {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ backgroundColor: goldColor }} />
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* ইভেন্টカード লিস্ট */}
-        <div className="space-y-6">
-          {filteredEvents.map((event) => (
-            <div 
-              key={event.id}
-              className="bg-white rounded-2xl p-6 md:p-8 border shadow-sm hover:shadow-md transition-all duration-300"
-              style={{ borderColor: `${goldColor}15` }}
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                {/* তারিখ ও সময় */}
-                <div className="flex flex-wrap items-center gap-2.5 text-xs font-semibold" style={{ color: goldColor }}>
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>{event.date}</span>
-                  <span className="text-gray-300">|</span>
-                  <span>{event.time}</span>
-                </div>
-
-                {/* লোকেশন ট্যাগ */}
-                <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
-                  <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span>{event.location}</span>
-                </div>
-              </div>
-
-              {/* টাইটেল এবং ডেসক্রিপশন */}
-              <h3 className="text-xl md:text-2xl font-serif font-bold mb-3" style={{ color: textColor }}>
-                {event.title}
-              </h3>
-              
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-6">
-                {event.description}
-              </p>
-
-              {/* অ্যাকশন বাটন */}
-              {event.type === "Upcoming" && (
-                <div className="flex justify-end">
-                  <Link 
-                    href={`/events/register/${event.id}`}
-                    className="px-6 py-2.5 rounded-full font-medium text-xs md:text-sm text-white transition-all duration-300 shadow-md"
-                    style={{ backgroundColor: goldColor }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#A37F3D'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = goldColor}
-                  >
-                    Register / Join Event
-                  </Link>
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* খালি থাকলে মেসেজ */}
-          {filteredEvents.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No initiatives found in this section.</p>
-            </div>
-          )}
-        </div>
-
-      </div>
-
+        {/* Interactive Feed Hub with Remaining Event Posts */}
+        <SectionInteractiveFeed
+          initialPosts={feedPosts}
+          categories={categories}
+          trendingPosts={trendingPosts.length > 0 ? trendingPosts : allPosts.slice(0, 4)}
+          pageCategorySlug="events-initiatives"
+          deskConfig={{
+            titleEn: "Events & Coordination Secretariat",
+            titleAr: "أمانة الفعاليات والتنسيق الأكاديمي",
+            descEn: "For symposium coordination, institutional partnerships, and event co-hosting inquiries:",
+            descAr: "للتنسيق العلمي وعقد الشراكات المؤسسية واستضافة الفعاليات والمؤتمرات المشتركة:",
+            email: "events@ummahscholar.com",
+            buttonTextEn: "Copy Secretariat Email",
+            buttonTextAr: "نسخ بريد أمانة الفعاليات",
+            iconName: "calendar",
+          }}
+          searchPlaceholderEn="Filter events by name, location, or format..."
+          searchPlaceholderAr="تصفية الفعاليات حسب العنوان، الموقع، أو نوع المبادرة..."
+        />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }

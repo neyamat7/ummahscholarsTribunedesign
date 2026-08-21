@@ -135,6 +135,17 @@ export default function OpinionsSection({
   const highlightWord = highlight || words[words.length - 1] || "";
   const leadingWords = highlight ? rawTitle : words.slice(0, -1).join(" ");
 
+  const targetUrl =
+    categorySlug === "opinions-perspectives" || categorySlug === "opinions"
+      ? "/opinions"
+      : categorySlug === "research-studies" || categorySlug === "research"
+      ? "/research"
+      : categorySlug === "events-initiatives" || categorySlug === "events"
+      ? "/events"
+      : categorySlug === "news-announcements" || categorySlug === "news"
+      ? "/news"
+      : `/categories/${categorySlug}`;
+
   return (
     <section className="py-20 sm:py-28 bg-[#F7F4EE] dark:bg-[#0F0D0B] transition-colors overflow-hidden">
       <div className="max-w-7xl mx-auto px-5">
@@ -144,7 +155,7 @@ export default function OpinionsSection({
           highlight={highlightWord}
           description={sectionDesc}
           action={{
-            href: `/blog/${categorySlug}`,
+            href: targetUrl,
             label: isRtl ? "عرض الكل" : "View All",
           }}
           borderBottom={true}

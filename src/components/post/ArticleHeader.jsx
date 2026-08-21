@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Calendar, Clock, Eye, User, Share2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { fadeUp } from "@/lib/animations";
+import { getMediaUrl } from "@/lib/api";
 
 export default function ArticleHeader({ post, onAuthorClick }) {
   const { isRtl } = useLanguage();
@@ -37,8 +38,8 @@ export default function ArticleHeader({ post, onAuthorClick }) {
   };
 
   // Formatted date
-  const dateObj = post.publishedAt || post.createdAt ? new Date(post.publishedAt || post.createdAt) : new Date();
-  const formattedDate = dateObj.toLocaleDateString(isRtl ? "ar-SA" : "en-US", {
+  const dateObj = new Date(post.publishedAt || post.createdAt || post.date || Date.now());
+  const formattedDate = dateObj.toLocaleDateString(isRtl ? "ar-EG" : "en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -47,8 +48,17 @@ export default function ArticleHeader({ post, onAuthorClick }) {
   const readingTime = post.readingTimeMinutes || Math.max(3, Math.ceil((post.contentEn?.length || 1000) / 1000 * 2));
   const readingTimeText = isRtl ? `${readingTime} دقائق قراءة` : `${readingTime} min read`;
 
-  const authorName = post.author?.name || "Dr. Zobair Sultan Rabbani";
-  const authorAvatar = post.author?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authorName}`;
+  const authorName = isRtl
+    ? post.author?.nameAr || post.author?.name || "د. زبير سلطان رباني"
+    : post.author?.name || post.author?.nameAr || "Dr. Zobair Sultan Rabbani";
+
+  const rawAuthorAvatar =
+    post.author?.avatarUrl ||
+    post.author?.avatar ||
+    post.author?.image ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(post.author?.id || authorName)}`;
+  const authorAvatar = getMediaUrl(rawAuthorAvatar, rawAuthorAvatar);
+  
   const views = post.viewCount ?? post.views ?? 0;
 
   const imageUrl = post.featuredImageUrl || post.featuredImage?.url || post.image || "/news/news1.avif";

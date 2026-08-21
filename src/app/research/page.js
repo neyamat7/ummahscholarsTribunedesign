@@ -1,204 +1,182 @@
-"use client";
-
-import React, { useState } from 'react';
+import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Image from "next/image";
+import SectionHeroBanner from "@/components/section-page/SectionHeroBanner";
+import SectionInteractiveFeed from "@/components/section-page/SectionInteractiveFeed";
+import { fetchCategories, fetchPosts } from "@/lib/api";
 
-export default function ResearchPage() {
-  const [activeCategory, setActiveCategory] = useState("All");
+/**
+ * Dynamic SEO Metadata for Research & Studies Page
+ */
+export async function generateMetadata() {
+  const title = "Research & Studies | البحوث والدراسات | Ummah Scholars Tribune";
+  const description =
+    "A platform for rigorous research and studies across diverse fields of knowledge, advancing understanding and addressing the concerns of the Ummah, humanity, and contemporary life.";
 
-  const goldColor = "#C5A059";
-  const textColor = "#1A1A1A";
-
-  // নতুন এবং বিস্তৃত ক্যাটাগরি লিস্ট
-  const categories = [
-    "All", 
-    "Islamic and Foundational Studies", 
-    "Humanities and Social Studies", 
-    "Language, Literature and Civilization Studies", 
-    "Contemporary and Interdisciplinary Studies"
-  ];
-
-  // ডামি রিসার্চ ডাটা (নতুন ক্যাটাগরির সাথে সামঞ্জস্যপূর্ণ করা হয়েছে)
-  const researchPapers = [
-    {
-      id: 1,
-      title: "Islamic and Foundational Studies",
-      author: "Dr. Muhammad Al-Hasan",
-      date: "June 2026",
-      category: "Islamic and Foundational Studies",
-      abstract: "This paper examines contemporary microfinance models through the lens of Shariah principles, highlighting empirical data from South Asian Muslim communities...",
-      downloadUrl: "#"
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: "https://ummahscholar.com/research",
+      siteName: "Ummah Scholars Tribune",
+      images: [
+        {
+          url: "/research.jpeg",
+          width: 1200,
+          height: 630,
+          alt: "Research & Studies",
+        },
+      ],
+      type: "website",
     },
-    {
-      id: 2,
-      title: "Humanities and Social Studies",
-      author: "Prof. Abdul Rahman",
-      date: "May 2026",
-      category: "Humanities and Social Studies",
-      abstract: "An in-depth sociological study exploring how rapid urbanization impacts social cohesion, identity formation, and community structures among youth...",
-      downloadUrl: "#"
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/research.jpeg"],
     },
-    {
-      id: 3,
-      title: "Language, Literature and Civilization Studies",
-      author: "Dr. Fatima Al-Zahra",
-      date: "April 2026",
-      category: "Language, Literature and Civilization Studies",
-      abstract: "A comprehensive review of classical styles of Arabic calligraphy and its preservation within contemporary Islamic civilizational architecture...",
-      downloadUrl: "#"
+    alternates: {
+      canonical: "/research",
     },
-    {
-      id: 4,
-      title: "Contemporary and Interdisciplinary Studies",
-      author: "Dr. Tariq Mahmood",
-      date: "March 2026",
-      category: "Contemporary and Interdisciplinary Studies",
-      abstract: "Addressing modern medical advancements including gene editing and artificial life support from the framework of Maqasid al-Shariah...",
-      downloadUrl: "#"
-    }
-  ];
+  };
+}
 
-  // ফিল্টারিং লজিক
-  const filteredPapers = activeCategory === "All" 
-    ? researchPapers 
-    : researchPapers.filter(paper => paper.category === activeCategory);
+export default async function ResearchPage() {
+  // 1. Parallel Server-Side Data Fetching
+  const [researchPostsRes, categoriesRes, trendingRes] = await Promise.all([
+    fetchPosts({
+      pageCategory: "research-studies",
+      status: "PUBLISHED",
+      limit: 100,
+      sort: "newest",
+    }),
+    fetchCategories(),
+    fetchPosts({
+      status: "PUBLISHED",
+      limit: 5,
+      sort: "views",
+    }),
+  ]);
+
+  let allPosts = researchPostsRes?.posts || [];
+  const categories = categoriesRes || [];
+  const trendingPosts = trendingRes?.posts || [];
+
+  // Fallback sample research posts if backend has no records yet
+  if (allPosts.length === 0) {
+    allPosts = [
+      {
+        id: "research-spotlight-1",
+        slug: "contemporary-islamic-microfinance-models-empirical-study",
+        titleEn: "Contemporary Islamic Microfinance Models: An Empirical Study of Shariah Governance in South Asia",
+        titleAr: "نماذج التمويل الأصغر الإسلامي المعاصر: دراسة ميدانية في حوكمة الشريعة في جنوب آسيا",
+        excerptEn: "This rigorous treatise examines empirical microfinance structures through the lens of Shariah principles, highlighting empirical data from grassroots Muslim communities.",
+        excerptAr: "تبحث هذه الدراسة الأكاديمية الرصينة في هياكل التمويل الأصغر ومقاصد الشريعة الاقتصادية عبر بيانات ميدانية من المجتمعات المعاصرة.",
+        contentEn: "Comprehensive academic treatise exploring empirical models...",
+        contentAr: "أطروحة أكاديمية شاملة تبحث في نماذج التمويل الأصغر المعاصر...",
+        publishedAt: new Date().toISOString(),
+        viewCount: 64,
+        category: { nameEn: "Islamic and Foundational Studies", nameAr: "الدراسات الإسلامية والتأصيلية", slug: "islamic-foundational-studies" },
+        pageCategory: { slug: "research-studies" },
+        featuredImageUrl: "/research.jpeg",
+      },
+      {
+        id: "research-post-2",
+        slug: "urbanization-social-cohesion-sociological-analysis",
+        titleEn: "Rapid Urbanization and Social Cohesion: A Sociological Analysis of Community Structures",
+        titleAr: "التحضر السريع والتماسك الاجتماعي: تحليل سوسيولوجي للبنى المجتمعية والهوية",
+        excerptEn: "An in-depth sociological study exploring how modern urban sprawl impacts collective identity, family ties, and moral frameworks.",
+        excerptAr: "دراسة سوسيولوجية معمقة تبحث في أثر التحضر المعاصر على الهوية الجمعية والروابط الأسرية والأخلاقية للأمة.",
+        contentEn: "Sociological analysis detailing community cohesion...",
+        contentAr: "تحليل سوسيولوجي مفصل حول التماسك المجتمعي والهوية...",
+        publishedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+        viewCount: 48,
+        category: { nameEn: "Humanities and Social Studies", nameAr: "الدراسات الإنسانية والاجتماعية", slug: "humanities-social-studies" },
+        pageCategory: { slug: "research-studies" },
+        featuredImageUrl: "/research.jpeg",
+      },
+    ];
+  }
+
+  // 2. Select primary spotlight post (first item in the collection)
+  const spotlightPost = allPosts.length > 0 ? allPosts[0] : null;
+
+  // 3. Exclude the hero spotlight post from the below feed list so it does not duplicate
+  const feedPosts = spotlightPost
+    ? allPosts.filter(
+        (p) => p.id !== spotlightPost.id && (!spotlightPost.slug || p.slug !== spotlightPost.slug)
+      )
+    : allPosts;
+
+  // JSON-LD Structured Data Schema
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Research & Studies - Ummah Scholars Tribune",
+    description:
+      "A platform for rigorous research and studies across diverse fields of knowledge, advancing understanding and addressing the concerns of the Ummah, humanity, and contemporary life.",
+    url: "https://ummahscholar.com/research",
+    publisher: {
+      "@type": "Organization",
+      name: "Ummah Scholars Tribune",
+      url: "https://ummahscholar.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://ummahscholar.com/favicon/favicon.jpeg",
+      },
+    },
+  };
 
   return (
-    <main className="min-h-screen bg-gray-50/50">
-      {/* নেভিগেশন বার */}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
+      <main className="min-h-screen bg-[#FBF9F6] dark:bg-[#0F0D0B]">
+        {/* Research Hero Banner with Specified Bilingual Title & Description */}
+        <SectionHeroBanner
+          pageTitleEn="Research & Studies"
+          pageTitleAr="البحوث والدراسات"
+          pageTitleHighlightEn="Studies"
+          pageTitleHighlightAr="والدراسات"
+          heroDescriptionAr="فضاءٌ للبحوث والدراسات العلمية الرصينة في مختلف حقول المعرفة، بما يعمّق الفهم ويخدم قضايا الأمة والإنسان والعصر."
+          heroDescriptionEn="A platform for rigorous research and studies across diverse fields of knowledge, advancing understanding and addressing the concerns of the Ummah, humanity, and contemporary life."
+          pageCategorySlug="research-studies"
+          bgImage="/research.jpeg"
+          spotlightPost={spotlightPost}
+          badgeTextEn="Major Research"
+          badgeTextAr="دراسة محكّمة"
+          searchPlaceholderEn="Search research papers, empirical studies, and academic treatises..."
+          searchPlaceholderAr="ابحث في الأوراق البحثية والدراسات والأطروحات الأكاديمية..."
+          archiveLabelEn="Research Archive"
+          archiveLabelAr="أرشيف البحوث والدراسات"
+        />
 
-      {/* পেইজ হেডার সেকশন - ব্যাকগ্রাউন্ড ইমেজ সহ */}
-      <div className="relative bg-stone-950 py-20 px-6 md:px-12 text-center overflow-hidden">
-        
-        {/* ব্যাকগ্রাউন্ড ইমেজ */}
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src="/research.jpeg"
-            alt="Research Academic Banner"
-            fill
-            priority
-            className="object-cover object-center opacity-40"
-          />
-          {/* ডার্ক গ্রেডিয়েন্ট ওভারলে */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/10 to-black/10" />
-        </div>
-
-        {/* মেইন কনটেন্ট */}
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <span 
-            className="text-xs font-bold uppercase tracking-[0.25em] mb-3 bg-black/30 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/10 inline-block"
-            style={{ color: goldColor }}
-          >
-            Academic Publications
-          </span>
-          
-          <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4 text-white drop-shadow-md">
-            Research & Academic <span style={{ color: goldColor }}>Studies</span>
-          </h1>
-          
-          <p className="text-gray-200 text-sm md:text-base max-w-2xl mx-auto leading-relaxed drop-shadow">
-            Explore peer-reviewed journals, scholarly articles, and contemporary Islamic research papers dedicated to bridging classical knowledge with modern challenges.
-          </p>
-        </div>
-      </div>
-
-      {/* মেইন কন্টেন্ট এরিয়া */}
-      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-12">
-        
-        {/* ফিল্টার ট্যাব সমূহ */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {categories.map((category, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveCategory(category)}
-              className="px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 border focus:outline-none"
-              style={{
-                backgroundColor: activeCategory === category ? goldColor : 'transparent',
-                color: activeCategory === category ? '#ffffff' : textColor,
-                borderColor: activeCategory === category ? goldColor : `${goldColor}44`,
-              }}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        {/* রিসার্চ পেপার লিস্ট/কার্ড */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredPapers.map((paper) => (
-            <div 
-              key={paper.id}
-              className="bg-white rounded-2xl p-6 md:p-8 border shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
-              style={{ borderColor: `${goldColor}22` }}
-            >
-              <div>
-                {/* টপ মেটা ডাটা */}
-                <div className="flex items-center justify-between mb-4">
-                  <span 
-                    className="text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-50"
-                    style={{ color: goldColor }}
-                  >
-                    {paper.category}
-                  </span>
-                  <span className="text-xs text-gray-400 font-medium">{paper.date}</span>
-                </div>
-
-                {/* টাইটেল */}
-                <h3 className="text-xl font-serif font-bold mb-2 hover:text-amber-700 transition-colors cursor-pointer" style={{ color: textColor }}>
-                  {paper.title}
-                </h3>
-
-                {/* লেখক বা স্কলারের নাম */}
-                <p className="text-sm font-medium text-gray-500 mb-4">
-                  By <span className="text-gray-700">{paper.author}</span>
-                </p>
-
-                {/* অ্যাবস্ট্রাক্ট বা সারসংক্ষেপ */}
-                <p className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-3">
-                  {paper.abstract}
-                </p>
-              </div>
-
-              {/* বটম অ্যাকশন এরিয়া */}
-              <div className="pt-4 border-t flex items-center justify-between border-gray-100">
-                <a 
-                  href={paper.downloadUrl}
-                  className="text-sm font-semibold flex items-center gap-1.5 transition-colors group"
-                  style={{ color: goldColor }}
-                >
-                  Read Abstract
-                  <svg className="h-4 w-4 transform transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
-
-                {/* PDF ডাউনলোড বাটন */}
-                <button 
-                  className="p-2 rounded-full hover:bg-amber-50 transition-colors group"
-                  title="Download PDF"
-                >
-                  <svg className="h-5 w-5 text-gray-400 group-hover:text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* যদি কোনো পেপার ম্যাচ না করে */}
-        {filteredPapers.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No research papers found in this category.</p>
-          </div>
-        )}
-
-      </div>
-
+        {/* Interactive Feed Hub with Remaining Research Posts */}
+        <SectionInteractiveFeed
+          initialPosts={feedPosts}
+          categories={categories}
+          trendingPosts={trendingPosts.length > 0 ? trendingPosts : allPosts.slice(0, 4)}
+          pageCategorySlug="research-studies"
+          deskConfig={{
+            titleEn: "Academic Submissions Desk",
+            titleAr: "هيئة التحرير والبحوث العلمية",
+            descEn: "Submit your scholarly papers, treatises, and peer-review proposals directly to the academic board:",
+            descAr: "لتقديم الأوراق البحثية والأطروحات الأكاديمية ومقترحات التحكيم العلمي:",
+            email: "research@ummahscholar.com",
+            buttonTextEn: "Copy Submission Email",
+            buttonTextAr: "نسخ بريد هيئة البحوث",
+            iconName: "book",
+          }}
+          searchPlaceholderEn="Filter research papers by title, topic, or methodology..."
+          searchPlaceholderAr="تصفية الأبحاث حسب العنوان، الموضوع، أو المنهجية..."
+        />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }
