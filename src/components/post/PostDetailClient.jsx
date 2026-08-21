@@ -8,6 +8,7 @@ import ArticleBody from "./ArticleBody";
 import TableOfContents from "./TableOfContents";
 import StickyActionRail from "./StickyActionRail";
 import TagsList from "./TagsList";
+import AuthorBioCard from "./AuthorBioCard";
 import CommentsSection from "./CommentsSection";
 import RelatedPosts from "./RelatedPosts";
 import AuthorBioModal from "@/components/author/AuthorBioModal";
@@ -98,6 +99,12 @@ export default function PostDetailClient({
 
             {/* Topic Tags */}
             <TagsList tags={post.tags} />
+
+            {/* Author Profile Card with Modal Trigger */}
+            <AuthorBioCard
+              author={post.author}
+              onAuthorClick={() => setIsAuthorModalOpen(true)}
+            />
 
             {/* Discussions & Threaded Comments */}
             <CommentsSection

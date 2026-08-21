@@ -154,7 +154,7 @@ export default function ResearchFeatures({ categories = [] }) {
                 }`}
               >
                 <Link
-                  href={`/blog/${categorySlug}`}
+                  href={`/categories/${categorySlug}`}
                   className="flex flex-col justify-between h-full group"
                 >
                   <div>

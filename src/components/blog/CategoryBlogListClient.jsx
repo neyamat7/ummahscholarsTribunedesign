@@ -29,6 +29,7 @@ import {
 import { useLanguage } from "@/context/LanguageContext";
 import { useDebounce } from "@/lib/useDebounce";
 import { getMediaUrl } from "@/lib/api";
+import { formatDynamicDate } from "@/lib/dateUtils";
 import { EXPO_EASE } from "@/lib/animations";
 
 // Fallback palette cycle matching the Tribune's brand identity
@@ -387,7 +388,7 @@ export default function CategoryBlogListClient({
                     return (
                       <Link
                         key={sub.id}
-                        href={`/blog/${sub.slug}`}
+                        href={`/categories/${sub.slug}`}
                         className="px-3 py-1 rounded-full text-xs font-medium bg-white/10 hover:bg-[#C5A059] text-white border border-white/15 transition-all hover:scale-105"
                       >
                         {subName}
@@ -464,10 +465,7 @@ export default function CategoryBlogListClient({
                   <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400 mb-3">
                     <span className="flex items-center gap-1 font-mono">
                       <Calendar size={13} />
-                      {new Date(spotlightPost.publishedAt || spotlightPost.createdAt).toLocaleDateString(
-                        isRtl ? "ar-EG" : "en-US",
-                        { year: "numeric", month: "short", day: "numeric" }
-                      )}
+                      {formatDynamicDate(spotlightPost.publishedAt || spotlightPost.createdAt, isRtl)}
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1 font-mono">
@@ -735,10 +733,7 @@ export default function CategoryBlogListClient({
                               <div className="flex items-center gap-2 text-[11px] text-stone-500 dark:text-stone-400 font-mono">
                                 <span className="flex items-center gap-1">
                                   <Calendar size={12} />
-                                  {new Date(post.publishedAt || post.createdAt).toLocaleDateString(
-                                    isRtl ? "ar-EG" : "en-US",
-                                    { month: "short", day: "numeric", year: "numeric" }
-                                  )}
+                                  {formatDynamicDate(post.publishedAt || post.createdAt, isRtl)}
                                 </span>
                                 <span>•</span>
                                 <span className="flex items-center gap-1">
@@ -835,10 +830,7 @@ export default function CategoryBlogListClient({
                               <div className="flex items-center gap-2 text-[11px] text-stone-500 dark:text-stone-400 font-mono mb-1.5">
                                 <span className="flex items-center gap-1">
                                   <Calendar size={12} />
-                                  {new Date(post.publishedAt || post.createdAt).toLocaleDateString(
-                                    isRtl ? "ar-EG" : "en-US",
-                                    { month: "short", day: "numeric", year: "numeric" }
-                                  )}
+                                  {formatDynamicDate(post.publishedAt || post.createdAt, isRtl)}
                                 </span>
                                 <span>•</span>
                                 <span>6 {isRtl ? "دقائق قراءة" : "min read"}</span>
@@ -864,7 +856,9 @@ export default function CategoryBlogListClient({
 
                             <div className="flex items-center justify-between pt-3 mt-3 border-t border-[#E5DCCB]/60 dark:border-[#26221C] text-xs">
                               <span className="font-semibold text-stone-700 dark:text-stone-300">
-                                {post.author?.name || (isRtl ? "أعلام الأمة" : "Dr. Zobair Sultan Rabbani")}
+                                {isRtl
+                                  ? post.author?.nameAr || post.author?.name || "هيئة التحرير"
+                                  : post.author?.name || post.author?.nameAr || "Editorial Board"}
                               </span>
                               <span className="text-[#B88A2B] dark:text-[#C5A059] font-bold inline-flex items-center gap-1 group-hover:underline">
                                 <span>{isRtl ? "قراءة" : "Read"}</span>
@@ -1013,7 +1007,7 @@ export default function CategoryBlogListClient({
                         transition={{ duration: 0.35, delay: i * 0.05 }}
                       >
                         <Link
-                          href={`/blog/${otherCat.slug}`}
+                          href={`/categories/${otherCat.slug}`}
                           className="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#FAF0D7]/50 dark:hover:bg-[#1E1A14]/70 transition-colors group"
                         >
                           <div className="flex items-center gap-2.5 min-w-0">

@@ -29,6 +29,17 @@ export default function CategorySection({
       ? "bg-[#F3ECE0] dark:bg-[#1A1714] border-t border-b border-[#E5DCCB] dark:border-[#2E2A24]"
       : "bg-[#F7F4EE] dark:bg-[#0F0D0B]";
 
+  const targetUrl =
+    categorySlug === "research-studies" || categorySlug === "research"
+      ? "/research"
+      : categorySlug === "opinions-perspectives" || categorySlug === "opinions"
+      ? "/opinions"
+      : categorySlug === "events-initiatives" || categorySlug === "events"
+      ? "/events"
+      : categorySlug === "news-announcements" || categorySlug === "news"
+      ? "/news"
+      : `/categories/${categorySlug}`;
+
   return (
     <section className={`py-14 sm:py-18 transition-colors overflow-hidden ${bgClasses}`}>
       <div className="max-w-7xl mx-auto px-5">
@@ -37,7 +48,7 @@ export default function CategorySection({
           title={sectionTitle}
           description={sectionDesc}
           action={{
-            href: `/blog/${categorySlug}`,
+            href: targetUrl,
             label: isRtl ? "عرض المزيد" : "View More",
           }}
         />

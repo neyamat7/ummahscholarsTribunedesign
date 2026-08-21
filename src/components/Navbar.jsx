@@ -97,6 +97,62 @@ export default function Navbar() {
     { name: t("nav.contact"), path: "/contact" },
   ];
 
+  // Helper to determine active state for all primary & secondary routes
+  const isNavItemActive = (itemPath) => {
+    if (!pathname) return false;
+    const cleanPath = pathname.replace(/\/+$/, "") || "/";
+
+    if (itemPath === "/") {
+      return cleanPath === "/";
+    }
+
+    if (itemPath === "/news") {
+      return (
+        cleanPath === "/news" ||
+        cleanPath.startsWith("/news/") ||
+        cleanPath === "/news-announcements" ||
+        cleanPath.startsWith("/news-announcements/") ||
+        cleanPath === "/blog/news-announcements" ||
+        cleanPath.startsWith("/blog/news-announcements/")
+      );
+    }
+
+    if (itemPath === "/research") {
+      return (
+        cleanPath === "/research" ||
+        cleanPath.startsWith("/research/") ||
+        cleanPath === "/research-studies" ||
+        cleanPath.startsWith("/research-studies/") ||
+        cleanPath === "/blog/research-studies" ||
+        cleanPath.startsWith("/blog/research-studies/")
+      );
+    }
+
+    if (itemPath === "/opinions") {
+      return (
+        cleanPath === "/opinions" ||
+        cleanPath.startsWith("/opinions/") ||
+        cleanPath === "/opinions-perspectives" ||
+        cleanPath.startsWith("/opinions-perspectives/") ||
+        cleanPath === "/blog/opinions-perspectives" ||
+        cleanPath.startsWith("/blog/opinions-perspectives/")
+      );
+    }
+
+    if (itemPath === "/events") {
+      return (
+        cleanPath === "/events" ||
+        cleanPath.startsWith("/events/") ||
+        cleanPath === "/events-initiatives" ||
+        cleanPath.startsWith("/events-initiatives/") ||
+        cleanPath === "/blog/events-initiatives" ||
+        cleanPath.startsWith("/blog/events-initiatives/")
+      );
+    }
+
+    return cleanPath === itemPath || cleanPath.startsWith(`${itemPath}/`);
+  };
+
   const userAvatar =
     user?.avatarUrl ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user?.id || user?.email || "guest")}`;
@@ -172,7 +228,7 @@ export default function Navbar() {
               className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 flex-grow px-4"
             >
               {primaryNavItems.map((item, index) => {
-                const isActive = pathname === item.path;
+                const isActive = isNavItemActive(item.path);
 
                 return (
                   <motion.div
@@ -208,7 +264,7 @@ export default function Navbar() {
                   type="button"
                   onClick={() => setIsMoreOpen((p) => !p)}
                   className={`inline-flex items-center gap-1 text-sm font-medium py-1 transition-colors cursor-pointer ${
-                    isMoreOpen || moreNavItems.some((m) => m.path === pathname)
+                    isMoreOpen || moreNavItems.some((m) => isNavItemActive(m.path))
                       ? "text-[#C5A059] font-bold"
                       : "text-[#1A1714] dark:text-[#F5F1E8] hover:text-[#C5A059]"
                   }`}
@@ -233,7 +289,7 @@ export default function Navbar() {
                       } z-50 w-44 bg-white dark:bg-[#1A1714] border border-[#E7E2D9] dark:border-[#2E2A24] rounded-2xl shadow-xl p-2`}
                     >
                       {moreNavItems.map((item, index) => {
-                        const isActive = pathname === item.path;
+                        const isActive = isNavItemActive(item.path);
                         return (
                           <Link
                             key={index}
@@ -414,20 +470,23 @@ export default function Navbar() {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#C5A059] block px-3 py-1">
                     {isRtl ? "التصفح الرئيسي" : "Main Navigation"}
                   </span>
-                  {primaryNavItems.map((item, index) => (
-                    <Link
-                      key={index}
-                      href={item.path}
-                      className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                        pathname === item.path
-                          ? "bg-[#FAF4E9] dark:bg-[#262118] text-[#C5A059] font-bold"
-                          : "text-[#1A1714] dark:text-[#F5F1E8] hover:bg-[#FAF4E9]/60 dark:hover:bg-[#262118]/60"
-                      }`}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
+                  {primaryNavItems.map((item, index) => {
+                    const isActive = isNavItemActive(item.path);
+                    return (
+                      <Link
+                        key={index}
+                        href={item.path}
+                        className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          isActive
+                            ? "bg-[#FAF4E9] dark:bg-[#262118] text-[#C5A059] font-bold"
+                            : "text-[#1A1714] dark:text-[#F5F1E8] hover:bg-[#FAF4E9]/60 dark:hover:bg-[#262118]/60"
+                        }`}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    );
+                  })}
                 </div>
 
                 {/* Divider */}
@@ -438,20 +497,23 @@ export default function Navbar() {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#6B6459] dark:text-[#A39B8B] block px-3 py-1">
                     {isRtl ? "صفحات إضافية" : "Pages & Info"}
                   </span>
-                  {moreNavItems.map((item, index) => (
-                    <Link
-                      key={index}
-                      href={item.path}
-                      className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                        pathname === item.path
-                          ? "bg-[#FAF4E9] dark:bg-[#262118] text-[#C5A059] font-bold"
-                          : "text-[#6B6459] dark:text-[#A39B8B] hover:text-[#1A1714] dark:hover:text-[#F5F1E8]"
-                      }`}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
+                  {moreNavItems.map((item, index) => {
+                    const isActive = isNavItemActive(item.path);
+                    return (
+                      <Link
+                        key={index}
+                        href={item.path}
+                        className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          isActive
+                            ? "bg-[#FAF4E9] dark:bg-[#262118] text-[#C5A059] font-bold"
+                            : "text-[#6B6459] dark:text-[#A39B8B] hover:text-[#1A1714] dark:hover:text-[#F5F1E8]"
+                        }`}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>

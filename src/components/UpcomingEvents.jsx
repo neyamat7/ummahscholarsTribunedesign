@@ -29,7 +29,7 @@ export default function UpcomingEvents({ events = [] }) {
               : "Scholarly symposiums, academic webinars, and international conferences connecting researchers worldwide."
           }
           action={{
-            href: "/blog/events-initiatives",
+            href: "/events",
             label: t("site.viewAllEvents") || (isRtl ? "عرض كل الفعاليات" : "View All Events"),
           }}
         />

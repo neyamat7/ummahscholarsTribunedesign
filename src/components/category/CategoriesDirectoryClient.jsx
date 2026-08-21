@@ -451,7 +451,7 @@ export default function CategoriesDirectoryClient({ initialCategories = [] }) {
                     : parent.nameEn || catNameAr(parent)
                   : null;
 
-                const targetUrl = `/blog/${cat.slug}`;
+                const targetUrl = `/categories/${cat.slug}`;
                 const cardVariants = getAlternatingCardVariants(idx, isRtl);
 
                 return (
@@ -574,7 +574,7 @@ export default function CategoriesDirectoryClient({ initialCategories = [] }) {
                       : parent.nameEn || catNameAr(parent)
                     : null;
 
-                  const targetUrl = `/blog/${cat.slug}`;
+                  const targetUrl = `/categories/${cat.slug}`;
                   const rowVariants = getAlternatingCardVariants(idx, isRtl);
 
                   return (

@@ -45,7 +45,7 @@ export async function generateMetadata({ params }) {
       ],
       type: "article",
       publishedTime: post.publishedAt || post.createdAt,
-      authors: [post.author?.name || "Dr. Zobair Sultan Rabbani"],
+      authors: [post.author?.name || post.author?.nameAr || "Dr. Zobair Sultan Rabbani"],
     },
     twitter: {
       card: "summary_large_image",
@@ -91,7 +91,7 @@ export default async function PostDetailPage({ params }) {
     dateModified: post.updatedAt || post.createdAt,
     author: {
       "@type": "Person",
-      name: post.author?.name || "Dr. Zobair Sultan Rabbani",
+      name: post.author?.name || post.author?.nameAr || "Dr. Zobair Sultan Rabbani",
       url: "https://ummahscholar.com/about",
     },
     publisher: {

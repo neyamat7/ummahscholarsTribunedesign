@@ -61,6 +61,10 @@ export default function NewsSection({
         <SectionHeader
           title={sectionTitle}
           description={sectionDesc}
+          action={{
+            href: "/news",
+            label: isRtl ? "عرض كل الأخبار والإعلانات" : "View All News & Dispatches",
+          }}
         />
 
         {/* 2. Featured Asymmetric Banner */}

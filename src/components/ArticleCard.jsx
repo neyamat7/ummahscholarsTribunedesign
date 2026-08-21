@@ -7,6 +7,7 @@ import { ArrowRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { cardHoverAnimation } from "@/lib/animations";
+import { formatDynamicDate } from "@/lib/dateUtils";
 
 export default function ArticleCard({ item }) {
   const { isRtl, t } = useLanguage();
@@ -42,13 +43,7 @@ export default function ArticleCard({ item }) {
     return "bg-[#B88A2B]/15 text-[#B88A2B] border-[#B88A2B]/30 dark:bg-[#C5A059]/20 dark:text-[#C5A059] dark:border-[#C5A059]/30";
   };
 
-  const dateStr = item.createdAt
-    ? new Date(item.createdAt).toLocaleDateString(isRtl ? "ar" : "en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : item.date || "2026";
+  const dateStr = formatDynamicDate(item.publishedAt || item.createdAt, isRtl) || item.date || "2026";
 
   return (
     <Link href={postLink} className="block h-full">

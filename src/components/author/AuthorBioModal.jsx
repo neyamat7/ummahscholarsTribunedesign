@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Award, BookOpen, GraduationCap, Globe } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { getMediaUrl } from "@/lib/api";
 
 export default function AuthorBioModal({ isOpen, onClose, author }) {
   const { isRtl } = useLanguage();
@@ -26,21 +27,26 @@ export default function AuthorBioModal({ isOpen, onClose, author }) {
 
   if (!isOpen) return null;
 
-  const authorName =
-    author?.name || (isRtl ? "د. زبير سلطان رباني" : "Dr. Zobair Sultan Rabbani");
-  const avatarUrl =
+  const authorName = isRtl
+    ? author?.nameAr || author?.name || "د. زبير سلطان رباني"
+    : author?.name || author?.nameAr || "Dr. Zobair Sultan Rabbani";
+
+  const rawAvatar =
     author?.avatarUrl ||
     author?.avatar ||
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${authorName}`;
+    author?.image ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(author?.id || authorName)}`;
+  const avatarUrl = getMediaUrl(rawAvatar, rawAvatar);
+
   const authorEmail = author?.email || "admin@ummahscholar.com";
 
   const authorTitle = isRtl
-    ? "أستاذ الفقه المقارن ومقاصد الشريعة الإسلامية"
-    : "Professor of Comparative Jurisprudence & Maqasid al-Shariah";
+    ? author?.titleAr || author?.title || "أستاذ الفقه المقارن ومقاصد الشريعة الإسلامية"
+    : author?.title || author?.titleAr || "Professor of Comparative Jurisprudence & Maqasid al-Shariah";
 
   const authorBio = isRtl
-    ? "باحث ومفكر متخصص في الفلسفة القانونية الإسلامية ونظم الحكم الراشد الأخلاقي، صاحب عدة دراسات وأبحاث تأصيلية في فقه المعاملات والمقاصد الدستورية وتطبيقاتها المعاصرة."
-    : "Distinguished scholar and senior researcher in Islamic legal philosophy and contemporary ethical governance. Author of multiple critical treatises on classical jurisprudence, institutional constitutionalism, and contemporary civic ethics.";
+    ? author?.bioAr || author?.bio || "باحث ومفكر متخصص في الفلسفة القانونية الإسلامية ونظم الحكم الراشد الأخلاقي، صاحب عدة دراسات وأبحاث تأصيلية في فقه المعاملات والمقاصد الدستورية وتطبيقاتها المعاصرة."
+    : author?.bio || author?.bioAr || "Distinguished scholar and senior researcher in Islamic legal philosophy and contemporary ethical governance. Author of multiple critical treatises on classical jurisprudence, institutional constitutionalism, and contemporary civic ethics.";
 
   return (
     <AnimatePresence>

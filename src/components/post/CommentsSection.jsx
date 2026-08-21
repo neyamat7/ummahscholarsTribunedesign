@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { MessageSquare, Send, Reply, User, Mail, CheckCircle2, Clock, CornerDownRight, CornerDownLeft, Award } from "lucide-react";
+import { MessageSquare, Send, Reply, User, Mail, CheckCircle2, AlertCircle, Clock, CornerDownRight, CornerDownLeft, Award } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { createPostComment } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function CommentsSection({ postId, initialComments = [] }) {
   const { isRtl } = useLanguage();
@@ -21,6 +22,7 @@ export default function CommentsSection({ postId, initialComments = [] }) {
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Reply form state
   const [replyContent, setReplyContent] = useState("");
@@ -44,9 +46,12 @@ export default function CommentsSection({ postId, initialComments = [] }) {
         return;
       }
 
-      // Filter out any pending comments that have now been approved and included in initialComments
+      // Filter out any fake/temp comments or comments that have now been approved
       const remainingPending = parsed.filter(
         (pending) =>
+          pending &&
+          pending.id &&
+          !String(pending.id).startsWith("temp-") &&
           !initialComments.some(
             (c) => c.id === pending.id || (c.content === pending.content && c.authorName === pending.authorName)
           )
@@ -67,6 +72,7 @@ export default function CommentsSection({ postId, initialComments = [] }) {
 
   // Helper to persist pending comments in localStorage
   const persistPendingComment = (newPendingComment) => {
+    if (!newPendingComment || !newPendingComment.id || String(newPendingComment.id).startsWith("temp-")) return;
     try {
       const storageKey = `scholar_pending_comments_${postId}`;
       const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
@@ -117,18 +123,10 @@ export default function CommentsSection({ postId, initialComments = [] }) {
         userId,
       });
 
-      // Optimistically create comment with PENDING badge
-      const newComment = res?.data || {
-        id: "temp-" + Date.now(),
-        content: content.trim(),
-        authorName,
-        createdAt: new Date().toISOString(),
-        status: "PENDING",
-        author: {
-          name: authorName,
-          avatar: user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(authorName)}`,
-        },
-      };
+      const newComment = res?.data || res;
+      if (!newComment || !newComment.id) {
+        throw new Error(isRtl ? "تعذر إرسال التعليق." : "Could not submit comment.");
+      }
 
       // Persist in localStorage so it remains visible after refresh
       persistPendingComment(newComment);
@@ -139,14 +137,19 @@ export default function CommentsSection({ postId, initialComments = [] }) {
         setName("");
         setEmail("");
       }
-      setSuccessMessage(
-        isRtl
-          ? "شكراً لمشاركتك! تم إرسال تعليقك وهو بانتظار المراجعة قبل نشره للعامة."
-          : "Thank you! Your comment has been submitted and is awaiting moderation before public display."
-      );
+      const msg = isRtl
+        ? "شكراً لمشاركتك! تم إرسال تعليقك وهو بانتظار المراجعة قبل نشره للعامة."
+        : "Thank you! Your comment has been submitted and is awaiting moderation before public display.";
+      setSuccessMessage(msg);
+      toast.success(msg);
+      setErrorMessage("");
       setTimeout(() => setSuccessMessage(""), 7000);
     } catch (err) {
       console.error("Comment submission failed:", err);
+      const errMsg = err.message || (isRtl ? "تم حظر حسابك ولا يمكنك نشر التعليقات." : "Your account has been blocked and cannot post comments.");
+      setErrorMessage(errMsg);
+      toast.error(errMsg);
+      setTimeout(() => setErrorMessage(""), 8000);
     } finally {
       setIsSubmitting(false);
     }
@@ -170,18 +173,10 @@ export default function CommentsSection({ postId, initialComments = [] }) {
         userId,
       });
 
-      const newReply = res?.data || {
-        id: "temp-reply-" + Date.now(),
-        parentId,
-        content: replyContent.trim(),
-        authorName,
-        createdAt: new Date().toISOString(),
-        status: "PENDING",
-        author: {
-          name: authorName,
-          avatar: user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(authorName)}`,
-        },
-      };
+      const newReply = res?.data || res;
+      if (!newReply || !newReply.id) {
+        throw new Error(isRtl ? "تعذر إرسال الرد." : "Could not submit reply.");
+      }
 
       // Persist in localStorage so it remains visible after refresh
       persistPendingComment(newReply);
@@ -189,14 +184,19 @@ export default function CommentsSection({ postId, initialComments = [] }) {
       setComments((prev) => [...prev, newReply]);
       setReplyContent("");
       setReplyingToId(null);
-      setSuccessMessage(
-        isRtl
-          ? "تم إرسال ردك وهو قيد المراجعة حالياً."
-          : "Your reply has been submitted and is pending moderation."
-      );
+      const msg = isRtl
+        ? "تم إرسال ردك وهو قيد المراجعة حالياً."
+        : "Your reply has been submitted and is pending moderation.";
+      setSuccessMessage(msg);
+      toast.success(msg);
+      setErrorMessage("");
       setTimeout(() => setSuccessMessage(""), 7000);
     } catch (err) {
       console.error("Reply submission failed:", err);
+      const errMsg = err.message || (isRtl ? "تم حظر حسابك ولا يمكنك إضافة ردود." : "Your account has been blocked and cannot post replies.");
+      setErrorMessage(errMsg);
+      toast.error(errMsg);
+      setTimeout(() => setErrorMessage(""), 8000);
     } finally {
       setIsReplyingSubmitting(false);
     }
@@ -248,6 +248,14 @@ export default function CommentsSection({ postId, initialComments = [] }) {
           </div>
         )}
       </div>
+
+      {/* Error Notification Alert */}
+      {errorMessage && (
+        <div className="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-rose-800 dark:text-rose-300 text-xs sm:text-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+          <AlertCircle size={18} className="shrink-0 text-rose-600 dark:text-rose-400" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       {/* Success Notification Alert */}
       {successMessage && (

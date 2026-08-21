@@ -157,6 +157,17 @@ function PinnedShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
 
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
+  const targetUrl =
+    categorySlug === "research-studies" || categorySlug === "research"
+      ? "/research"
+      : categorySlug === "opinions-perspectives" || categorySlug === "opinions"
+      ? "/opinions"
+      : categorySlug === "events-initiatives" || categorySlug === "events"
+      ? "/events"
+      : categorySlug === "news-announcements" || categorySlug === "news"
+      ? "/news"
+      : `/categories/${categorySlug}`;
+
   return (
     // FIX: dir="ltr" forced here and on the sticky child below. This is
     // the actual fix for the RTL bug — `position: sticky` breaks/silently
@@ -206,7 +217,7 @@ function PinnedShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
             </p>
 
             <Link
-              href={`/blog/${categorySlug}`}
+              href={targetUrl}
               className="pointer-events-auto inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm text-white shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.03]"
               style={{ backgroundColor: CATEGORY_COLOR }}
             >
@@ -235,6 +246,17 @@ function StaticShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
   const highlightWord = words[words.length - 1] || "";
   const leadingWords = words.slice(0, -1).join(" ");
 
+  const targetUrl =
+    categorySlug === "research-studies" || categorySlug === "research"
+      ? "/research"
+      : categorySlug === "opinions-perspectives" || categorySlug === "opinions"
+      ? "/opinions"
+      : categorySlug === "events-initiatives" || categorySlug === "events"
+      ? "/events"
+      : categorySlug === "news-announcements" || categorySlug === "news"
+      ? "/news"
+      : `/categories/${categorySlug}`;
+
   return (
     <section className="py-16 bg-[#F7F4EE] dark:bg-[#0F0D0B] px-5">
       <div className="max-w-3xl mx-auto text-center mb-10">
@@ -246,7 +268,7 @@ function StaticShowcase({ titleEn, titleAr, descriptionEn, descriptionAr, catego
         </h2>
         <p className="text-xs sm:text-sm md:text-base text-[#57534E] dark:text-[#A39B8B] leading-relaxed mb-6 font-sans">{description}</p>
         <Link
-          href={`/blog/${categorySlug}`}
+          href={targetUrl}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm text-white shadow-md"
           style={{ backgroundColor: CATEGORY_COLOR }}
         >

@@ -4,6 +4,7 @@ import "./style.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider } from "@/context/AuthContext";
 import FontLoader from "@/components/FontLoader";
+import { Toaster } from "sonner";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -75,6 +76,7 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <FontLoader />
             {children}
+            <Toaster richColors position="top-center" closeButton />
           </AuthProvider>
         </LanguageProvider>
       </body>

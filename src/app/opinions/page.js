@@ -1,175 +1,182 @@
-"use client";
-
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link'; // এই ইম্পোর্টটি মিস হয়েছিল, এখন ঠিক করে দেওয়া হয়েছে
+import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SectionHeroBanner from "@/components/section-page/SectionHeroBanner";
+import SectionInteractiveFeed from "@/components/section-page/SectionInteractiveFeed";
+import { fetchCategories, fetchPosts } from "@/lib/api";
 
-export default function OpinionsPage() {
-  const [activeCategory, setActiveCategory] = useState("All");
+/**
+ * Dynamic SEO Metadata for Opinions & Perspectives Page
+ */
+export async function generateMetadata() {
+  const title = "Opinions & Perspectives | الآراء والرؤى | Ummah Scholars Tribune";
+  const description =
+    "Responsible perspectives and analyses engaging with intellectual, societal, Ummah-related, and global issues while advancing awareness, dialogue, and reform.";
 
-  const goldColor = "#C5A059";
-  const textColor = "#1A1A1A";
-
-  const categories = ["All", "Contemporary Thought", "Ethics & Morality", "Global Affairs", "Socio-Cultural"];
-
-  const opinionArticles = [
-    {
-      id: 1,
-      title: "Navigating AI and Machine Learning: An Islamic Ethical Paradigm",
-      author: "Shaykh Dr. Yusuf Karim",
-      role: "Senior Fellow at Islamic Thought Institute",
-      date: "June 28, 2026",
-      category: "Ethics & Morality",
-      excerpt: "As artificial intelligence reshapes human civilization, we must look into the core philosophical frameworks of Islamic jurisprudence to establish clear guidelines for technological guardianship...",
-      readTime: "5 min read"
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: "https://ummahscholar.com/opinions",
+      siteName: "Ummah Scholars Tribune",
+      images: [
+        {
+          url: "/opinions.jpeg",
+          width: 1200,
+          height: 630,
+          alt: "Opinions & Perspectives",
+        },
+      ],
+      type: "website",
     },
-    {
-      id: 2,
-      title: "The Crisis of Individualism and the Revival of Community (Ummah)",
-      author: "Prof. Tariq Al-Mansoor",
-      role: "Professor of Sociology",
-      date: "June 15, 2026",
-      category: "Socio-Cultural",
-      excerpt: "Modernity prioritizes the hyper-individual, often fracturing collective well-being. This perspective piece analyzes how prophetic social models can restore psychological and communal stability...",
-      readTime: "7 min read"
-    }
-  ];
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/opinions.jpeg"],
+    },
+    alternates: {
+      canonical: "/opinions",
+    },
+  };
+}
 
-  const filteredArticles = activeCategory === "All" 
-    ? opinionArticles 
-    : opinionArticles.filter(article => article.category === activeCategory);
+export default async function OpinionsPage() {
+  // 1. Parallel Server-Side Data Fetching
+  const [opinionsPostsRes, categoriesRes, trendingRes] = await Promise.all([
+    fetchPosts({
+      pageCategory: "opinions-perspectives",
+      status: "PUBLISHED",
+      limit: 100,
+      sort: "newest",
+    }),
+    fetchCategories(),
+    fetchPosts({
+      status: "PUBLISHED",
+      limit: 5,
+      sort: "views",
+    }),
+  ]);
+
+  let allPosts = opinionsPostsRes?.posts || [];
+  const categories = categoriesRes || [];
+  const trendingPosts = trendingRes?.posts || [];
+
+  // Fallback sample opinion posts if backend has no records yet
+  if (allPosts.length === 0) {
+    allPosts = [
+      {
+        id: "opinion-spotlight-1",
+        slug: "navigating-ai-machine-learning-islamic-ethical-paradigm",
+        titleEn: "Navigating Artificial Intelligence & Machine Learning: An Islamic Ethical Paradigm",
+        titleAr: "الذكاء الاصطناعي وتعلم الآلة: نحو نموذج إرشادي وأخلاقي إسلامي معاصر",
+        excerptEn: "As artificial intelligence reshapes human civilization, we must look into the core philosophical frameworks of Islamic jurisprudence to establish clear ethical guidelines.",
+        excerptAr: "مع التحول الجذري الذي يفرضه الذكاء الاصطناعي على الحضارة الإنسانية، تبرز الحاجة الماسة إلى تأصيل ضوابط أخلاقية وفقهية ترشد التطور التقني.",
+        contentEn: "Detailed perspective on technological guardianship and Islamic ethical theory...",
+        contentAr: "قراءة فكرية متعمقة في أخلاقيات الذكاء الاصطناعي ومقاصد الشريعة...",
+        publishedAt: new Date().toISOString(),
+        viewCount: 55,
+        category: { nameEn: "Ethics & Morality", nameAr: "الأخلاق والقيم الفكرية", slug: "ethics-morality" },
+        pageCategory: { slug: "opinions-perspectives" },
+        featuredImageUrl: "/opinions.jpeg",
+      },
+      {
+        id: "opinion-post-2",
+        slug: "crisis-individualism-revival-community-ummah",
+        titleEn: "The Crisis of Hyper-Individualism and the Renewal of Prophetic Community (Ummah)",
+        titleAr: "أزمة الفردانية المفرطة وإعادة بناء الوعي الجمعي في ضوء الهدي النبوي",
+        excerptEn: "Modernity often prioritizes extreme individualism, fracturing social well-being. This perspective piece analyzes how prophetic social models restore stability.",
+        excerptAr: "تسببت الحداثة في ترسيخ فردانية مفرطة أضرت بالنسيج الاجتماعي؛ ويستعرض هذا المقال نماذج التكافل والتماسك في الفكر الإسلامي.",
+        contentEn: "Comprehensive essay examining communal solidarity and social cohesion...",
+        contentAr: "مقال فكري يستشرف سبل استعادة التوازن الاجتماعي وبناء مجتمع متماسك...",
+        publishedAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+        viewCount: 41,
+        category: { nameEn: "Socio-Cultural Thought", nameAr: "الفكر الاجتماعي والثقافي", slug: "socio-cultural-thought" },
+        pageCategory: { slug: "opinions-perspectives" },
+        featuredImageUrl: "/opinions.jpeg",
+      },
+    ];
+  }
+
+  // 2. Select primary spotlight post (first item in the collection)
+  const spotlightPost = allPosts.length > 0 ? allPosts[0] : null;
+
+  // 3. Exclude the hero spotlight post from the below feed list so it does not duplicate
+  const feedPosts = spotlightPost
+    ? allPosts.filter(
+        (p) => p.id !== spotlightPost.id && (!spotlightPost.slug || p.slug !== spotlightPost.slug)
+      )
+    : allPosts;
+
+  // JSON-LD Structured Data Schema
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Opinions & Perspectives - Ummah Scholars Tribune",
+    description:
+      "Responsible perspectives and analyses engaging with intellectual, societal, Ummah-related, and global issues while advancing awareness, dialogue, and reform.",
+    url: "https://ummahscholar.com/opinions",
+    publisher: {
+      "@type": "Organization",
+      name: "Ummah Scholars Tribune",
+      url: "https://ummahscholar.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://ummahscholar.com/favicon/favicon.jpeg",
+      },
+    },
+  };
 
   return (
-    <main className="min-h-screen bg-gray-50/50">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
+      <main className="min-h-screen bg-[#FBF9F6] dark:bg-[#0F0D0B]">
+        {/* Opinions Hero Banner with Specified Bilingual Title & Description */}
+        <SectionHeroBanner
+          pageTitleEn="Opinions & Perspectives"
+          pageTitleAr="الآراء والرؤى"
+          pageTitleHighlightEn="Perspectives"
+          pageTitleHighlightAr="والرؤى"
+          heroDescriptionAr="رؤى وتحليلات مسؤولة تقرأ قضايا الفكر والمجتمع والأمة والعالم، وتسهم في بناء الوعي وترسيخ الحوار واستشراف الإصلاح."
+          heroDescriptionEn="Responsible perspectives and analyses engaging with intellectual, societal, Ummah-related, and global issues while advancing awareness, dialogue, and reform."
+          pageCategorySlug="opinions-perspectives"
+          bgImage="/opinions.jpeg"
+          spotlightPost={spotlightPost}
+          badgeTextEn="Featured Perspective"
+          badgeTextAr="رأي تحريري مختار"
+          searchPlaceholderEn="Search essays, thought-leadership pieces, and analyses..."
+          searchPlaceholderAr="ابحث في الرؤى الفكرية والمقالات والتحليلات النقدية..."
+          archiveLabelEn="Opinions Archive"
+          archiveLabelAr="أرشيف الآراء والرؤى"
+        />
 
-      {/* হিরো সেকশন */}
-      <div className="relative bg-stone-900 py-24 px-6 md:px-12 text-center overflow-hidden border-b" style={{ borderColor: `${goldColor}44` }}>
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src="/opinions.jpeg" 
-            alt="Opinions Banner"
-            fill
-            priority
-            className="object-cover object-center opacity-30"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/1 via-black/5 to-black/1" />
-        </div>
-
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <span className="text-xs font-bold uppercase tracking-[0.25em] mb-3 block bg-black/30 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/5 w-fit mx-auto" style={{ color: goldColor }}>
-            Voices & Perspectives
-          </span>
-          <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4 text-white">
-            Opinions & <span style={{ color: goldColor }}>Perspectives</span>
-          </h1>
-          <p className="text-gray-200 text-sm md:text-base max-w-2xl mx-auto">
-            Critical reflections, thought-provoking essays, and contemporary viewpoints written by leading intellectuals and scholars.
-          </p>
-        </div>
-      </div>
-
-      {/* মেইন কন্টেন্ট */}
-      <div className="w-full max-w-5xl mx-auto px-6 md:px-12 py-12">
-        <div className="flex flex-wrap justify-center gap-3 mb-16">
-          {categories.map((category, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveCategory(category)}
-              className="px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 border"
-              style={{
-                backgroundColor: activeCategory === category ? goldColor : 'transparent',
-                color: activeCategory === category ? '#ffffff' : textColor,
-                borderColor: activeCategory === category ? goldColor : `${goldColor}44`,
-              }}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        <div className="space-y-8">
-          {filteredArticles.map((article) => (
-            <article 
-              key={article.id}
-              className="bg-white rounded-2xl p-6 md:p-8 border shadow-sm flex flex-col md:flex-row gap-6 items-start justify-between"
-              style={{ borderColor: `${goldColor}15` }}
-            >
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-3 mb-3">
-                  <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-stone-100" style={{ color: goldColor }}>
-                    {article.category}
-                  </span>
-                  <span className="text-xs text-gray-400">{article.date}</span>
-                </div>
-
-                <h3 className="text-xl md:text-2xl font-serif font-bold mb-3" style={{ color: textColor }}>
-                  {article.title}
-                </h3>
-
-                <div className="mb-4">
-                  <p className="text-sm font-bold text-stone-800">{article.author}</p>
-                  <p className="text-xs text-gray-500">{article.role}</p>
-                </div>
-
-                <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                  {article.excerpt}
-                </p>
-              </div>
-
-              {/* অ্যাকশন বাটন */}
-              <div className="w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-gray-100 flex justify-end shrink-0">
-                <Link 
-                  href={`/opinions/${article.id}`}
-                  className="px-5 py-2.5 rounded-full font-medium text-xs md:text-sm transition-all duration-300 border"
-                  style={{ 
-                    borderColor: goldColor,
-                    color: goldColor,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = goldColor;
-                    e.target.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'transparent';
-                    e.target.style.color = goldColor;
-                  }}
-                >
-                  Read Full Article
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-
-      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-12">
-        <h3 className='text-xl md:text-3xl font-serif font-bold mb-4' style={{ color: goldColor }}>Editorial Policy</h3>
- <p>
- 
-
-1. Publication Standards
-Ummah Scholars Tribune (UST) is committed to publishing original scholarly, intellectual, and editorial content that reflects its mission, vision, and values. All submissions are expected to meet the following standards:
-Be original, unpublished, and not under review or consideration by any other publisher or platform.
-Make a meaningful scholarly or intellectual contribution that advances knowledge in its respective field.
-Demonstrate sound methodology, reliable evidence, and accurate referencing where applicable.
-Maintain high standards of quality, clarity, coherence, and professional presentation.
-Uphold academic integrity, respect intellectual property rights, and comply with internationally recognized publication ethics.
-Be free from plagiarism, fabrication, falsification, or any form of academic or professional misconduct.
-Disclose any actual or potential conflicts of interest that may affect the integrity or objectivity of the work.
-</p>
-<p className='mt-4'>
-2. Editorial Principles and Disclaimer
-Ummah Scholars Tribune (UST) is committed to fostering responsible scholarly dialogue and encouraging evidence-based, constructive discussions grounded in mutual respect, intellectual diversity, and professional ethics. The platform does not publish content that promotes personal abuse, hate speech, defamation, discrimination, or incitement.
-
-The opinions and views expressed in published materials are solely those of their respective authors and do not necessarily reflect the official views, editorial policy, or institutional position of Ummah Scholars Tribune (UST).
- </p>
-
-      </div>
-
+        {/* Interactive Feed Hub with Remaining Opinions Posts */}
+        <SectionInteractiveFeed
+          initialPosts={feedPosts}
+          categories={categories}
+          trendingPosts={trendingPosts.length > 0 ? trendingPosts : allPosts.slice(0, 4)}
+          pageCategorySlug="opinions-perspectives"
+          deskConfig={{
+            titleEn: "Columnists & Opinion Desk",
+            titleAr: "منبر الكتّاب والمقالات الفكرية",
+            descEn: "Pitch your essays, intellectual perspectives, and thought-leadership articles directly to the editorial team:",
+            descAr: "لتقديم المقالات الفكرية والرؤى التحليلية والمشاركات الفكرية لهيئة التحرير:",
+            email: "opinions@ummahscholar.com",
+            buttonTextEn: "Copy Columnist Email",
+            buttonTextAr: "نسخ بريد هيئة المقالات",
+            iconName: "sparkles",
+          }}
+          searchPlaceholderEn="Filter opinions by author, title, or topic..."
+          searchPlaceholderAr="تصفية الآراء حسب الكاتب، العنوان، أو الموضوع..."
+        />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }
