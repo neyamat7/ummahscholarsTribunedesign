@@ -116,6 +116,8 @@ export default function SectionInteractiveFeed({
       ? "جرّب تغيير كلمات البحث أو استعراض تصنيف آخر"
       : "Try adjusting your search terms or selecting another topic filter",
     readMore: isRtl ? "قراءة المقال" : "Read Article",
+    readFull: isRtl ? "اقرأ المزيد" : "Read Full",
+    views: isRtl ? "مشاهدة" : "views",
     minRead: isRtl ? "دقائق" : "min read",
     previous: isRtl ? "السابق" : "Previous",
     next: isRtl ? "التالي" : "Next",
@@ -445,257 +447,223 @@ export default function SectionInteractiveFeed({
             {/* ARTICLES: LIST VIEW */}
             {viewMode === "list" && (
               <div className="space-y-4">
-                <AnimatePresence mode="popLayout">
-                  {paginatedPosts.map((post, idx) => {
-                    const title = isRtl
-                      ? post.titleAr || post.titleEn || post.title
-                      : post.titleEn || post.titleAr || post.title;
-                    const excerpt = isRtl
-                      ? post.excerptAr || post.excerptEn || ""
-                      : post.excerptEn || post.excerptAr || "";
-                    const categoryName = isRtl
-                      ? post.category?.nameAr || post.category?.nameEn || ""
-                      : post.category?.nameEn || post.category?.nameAr || "";
-                    const postDate = formatDynamicDate(post.publishedAt || post.createdAt, isRtl);
-                    const readTime = Math.max(
-                      2,
-                      Math.ceil((post.contentEn?.length || post.contentAr?.length || 1200) / 750)
-                    );
-                    const postUrl = `/${post.pageCategory?.slug || pageCategorySlug}/${post.slug || post.id}`;
+                {paginatedPosts.map((item, index) => {
+                  const title = isRtl
+                    ? item.titleAr || item.titleEn || item.title
+                    : item.titleEn || item.titleAr || item.title;
+                  const excerpt = isRtl
+                    ? item.excerptAr || item.excerptEn || ""
+                    : item.excerptEn || item.excerptAr || "";
+                  const catName = isRtl
+                    ? item.category?.nameAr || item.category?.nameEn || ""
+                    : item.category?.nameEn || item.category?.nameAr || "";
+                  const postDate = formatDynamicDate(item.publishedAt || item.createdAt, isRtl);
+                  const readTime = Math.max(
+                    2,
+                    Math.ceil((item.contentEn?.length || item.contentAr?.length || 1200) / 750)
+                  );
+                  const itemUrl = `/${item.pageCategory?.slug || pageCategorySlug}/${item.slug || item.id}`;
 
-                    const rawImage =
-                      (post.featuredImage && typeof post.featuredImage === "object"
-                        ? post.featuredImage.url || post.featuredImage.thumbnailUrl
-                        : typeof post.featuredImage === "string"
-                        ? post.featuredImage
-                        : null) ||
-                      post.featuredImageUrl ||
-                      post.image ||
-                      "/home.jpeg";
+                  const rawImage =
+                    (item.featuredImage && typeof item.featuredImage === "object"
+                      ? item.featuredImage.url || item.featuredImage.thumbnailUrl
+                      : typeof item.featuredImage === "string"
+                      ? item.featuredImage
+                      : null) ||
+                    item.featuredImageUrl ||
+                    item.image ||
+                    "/home.jpeg";
 
-                    const imageUrl = getMediaUrl(rawImage, "/home.jpeg");
+                  const imageUrl = getMediaUrl(rawImage, "/home.jpeg");
 
-                    return (
-                      <motion.article
-                        key={post.id || idx}
-                        layout
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        transition={{ duration: 0.35, delay: idx * 0.03 }}
-                        className="group relative rounded-2xl overflow-hidden bg-white dark:bg-[#161412] border border-[#E5DCCB] dark:border-[#2E2A24] hover:border-[#B88A2B]/60 dark:hover:border-[#C5A059]/60 shadow-xs hover:shadow-lg transition-all duration-300 p-4 sm:p-5"
-                      >
-                        <div className="flex flex-col sm:flex-row gap-5 items-stretch">
-                          {/* Thumbnail Image */}
-                          <div className="relative sm:w-52 h-44 sm:h-auto rounded-xl overflow-hidden shrink-0 bg-neutral-900">
-                            <Image
-                              src={imageUrl}
-                              alt={title}
-                              fill
-                              sizes="(max-width: 640px) 100vw, 220px"
-                              className="object-cover group-hover:scale-106 transition-transform duration-500"
-                            />
-                            {categoryName && (
-                              <div className="absolute top-2 start-2">
-                                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/20">
-                                  {categoryName}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                  const isOdd = index % 2 === 0;
+                  const initialX = isOdd ? (isRtl ? 40 : -40) : (isRtl ? -40 : 40);
 
-                          {/* Content Body */}
-                          <div className="flex-1 flex flex-col justify-between space-y-3">
-                            <div className="space-y-2">
-                              {/* Metadata */}
-                              <div className="flex items-center gap-3 text-xs text-[#78716C] dark:text-[#A39B8B] font-mono flex-wrap">
-                                {postDate && (
-                                  <span className="flex items-center gap-1">
-                                    <Calendar size={12} className="text-[#B88A2B] dark:text-[#D4AF37]" />
-                                    {postDate}
-                                  </span>
-                                )}
-                                <span>•</span>
-                                <span className="flex items-center gap-1">
-                                  <Clock size={12} />
-                                  {readTime} {dict.minRead}
-                                </span>
-                                {typeof post.viewCount === "number" && (
-                                  <>
-                                    <span>•</span>
-                                    <span className="flex items-center gap-1">
-                                      <Eye size={12} />
-                                      {post.viewCount}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
+                  return (
+                    <motion.article
+                      key={item.id || index}
+                      initial={{ opacity: 0, x: initialX, filter: "blur(6px)" }}
+                      whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                      viewport={{ once: true, margin: "-40px" }}
+                      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                      className="group p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#161412] border border-[#E5DCCB] dark:border-[#2E2A24] shadow-sm hover:shadow-xl hover:border-[#C5A059]/60 transition-all duration-300 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6"
+                    >
+                      {/* Thumbnail */}
+                      <Link href={itemUrl} className="block relative w-full sm:w-48 h-40 sm:h-32 rounded-2xl overflow-hidden shrink-0 bg-neutral-900">
+                        <Image
+                          src={imageUrl}
+                          alt={title}
+                          fill
+                          sizes="200px"
+                          className="object-cover object-center group-hover:scale-108 transition-transform duration-600 ease-out"
+                        />
+                      </Link>
 
-                              {/* Title */}
-                              <Link href={postUrl} className="block group/link">
-                                <h3 className="font-serif font-bold text-base sm:text-lg text-[#1C1917] dark:text-[#F5F1E8] group-hover/link:text-[#B88A2B] dark:group-hover/link:text-[#D4AF37] transition-colors leading-snug">
-                                  {title}
-                                </h3>
-                              </Link>
-
-                              {/* Excerpt */}
-                              <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#C5BEB3] font-sans line-clamp-2 leading-relaxed">
-                                {excerpt}
-                              </p>
-                            </div>
-
-                            {/* Action Bar */}
-                            <div className="pt-3 border-t border-[#E5DCCB]/60 dark:border-[#2E2A24]/60 flex items-center justify-between gap-3">
-                              <Link
-                                href={postUrl}
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#B88A2B] dark:text-[#D4AF37] hover:underline"
-                              >
-                                <span>{dict.readMore}</span>
-                                {isRtl ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
-                              </Link>
-
-                              <button
-                                type="button"
-                                onClick={(e) => handleShareCard(e, post)}
-                                className="p-1.5 rounded-lg border border-[#E5DCCB] dark:border-[#2E2A24] hover:bg-[#FAF0D7] dark:hover:bg-[#262118] text-[#78716C] dark:text-[#A39B8B] transition-colors cursor-pointer"
-                                title={isRtl ? "مشاركة" : "Share"}
-                              >
-                                {copiedCardId === post.id ? (
-                                  <Check size={14} className="text-emerald-600" />
-                                ) : (
-                                  <Share2 size={14} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
+                      {/* Content */}
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex items-center gap-2.5 text-[11px] text-[#78716C] dark:text-[#A39B8B] flex-wrap">
+                          {catName && (
+                            <span className="px-2.5 py-0.5 rounded-full font-bold text-[#B88A2B] dark:text-[#D4AF37] bg-[#FAF0D7] dark:bg-[#262118] border border-[#C5A059]/20">
+                              {catName}
+                            </span>
+                          )}
+                          {catName && postDate && <span>•</span>}
+                          {postDate && <span>{postDate}</span>}
+                          <span>•</span>
+                          <span>{readTime} {dict.minRead}</span>
                         </div>
-                      </motion.article>
-                    );
-                  })}
-                </AnimatePresence>
+
+                        <Link href={itemUrl} className="block">
+                          <h3 className="font-serif font-bold text-base sm:text-lg leading-snug text-[#1C1917] dark:text-[#F5F1E8] group-hover:text-[#B88A2B] dark:group-hover:text-[#D4AF37] transition-colors truncate">
+                            {title}
+                          </h3>
+                        </Link>
+
+                        {excerpt && (
+                          <p className="text-xs text-[#57534E] dark:text-[#C5BEB3] line-clamp-1 sm:line-clamp-2 leading-relaxed">
+                            {excerpt}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Arrow CTA */}
+                      <Link
+                        href={itemUrl}
+                        className="self-end sm:self-center p-3 rounded-2xl border border-[#E5DCCB] dark:border-[#2E2A24] bg-[#FBF9F6] dark:bg-[#1E1B18] group-hover:bg-[#B88A2B] group-hover:text-white dark:group-hover:bg-[#C5A059] dark:group-hover:text-neutral-950 transition-all shrink-0 cursor-pointer shadow-xs"
+                        aria-label={dict.readFull}
+                      >
+                        {isRtl ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
+                      </Link>
+                    </motion.article>
+                  );
+                })}
               </div>
             )}
 
             {/* ARTICLES: GRID VIEW */}
             {viewMode === "grid" && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <AnimatePresence mode="popLayout">
-                  {paginatedPosts.map((post, idx) => {
-                    const title = isRtl
-                      ? post.titleAr || post.titleEn || post.title
-                      : post.titleEn || post.titleAr || post.title;
-                    const excerpt = isRtl
-                      ? post.excerptAr || post.excerptEn || ""
-                      : post.excerptEn || post.excerptAr || "";
-                    const categoryName = isRtl
-                      ? post.category?.nameAr || post.category?.nameEn || ""
-                      : post.category?.nameEn || post.category?.nameAr || "";
-                    const postDate = formatDynamicDate(post.publishedAt || post.createdAt, isRtl);
-                    const readTime = Math.max(
-                      2,
-                      Math.ceil((post.contentEn?.length || post.contentAr?.length || 1200) / 750)
-                    );
-                    const postUrl = `/${post.pageCategory?.slug || pageCategorySlug}/${post.slug || post.id}`;
+              <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
+                {paginatedPosts.map((item, index) => {
+                  const title = isRtl
+                    ? item.titleAr || item.titleEn || item.title
+                    : item.titleEn || item.titleAr || item.title;
+                  const excerpt = isRtl
+                    ? item.excerptAr || item.excerptEn || ""
+                    : item.excerptEn || item.excerptAr || "";
+                  const catName = isRtl
+                    ? item.category?.nameAr || item.category?.nameEn || ""
+                    : item.category?.nameEn || item.category?.nameAr || "";
+                  const postDate = formatDynamicDate(item.publishedAt || item.createdAt, isRtl);
+                  const readTime = Math.max(
+                    2,
+                    Math.ceil((item.contentEn?.length || item.contentAr?.length || 1200) / 750)
+                  );
+                  const itemUrl = `/${item.pageCategory?.slug || pageCategorySlug}/${item.slug || item.id}`;
 
-                    const rawImage =
-                      (post.featuredImage && typeof post.featuredImage === "object"
-                        ? post.featuredImage.url || post.featuredImage.thumbnailUrl
-                        : typeof post.featuredImage === "string"
-                        ? post.featuredImage
-                        : null) ||
-                      post.featuredImageUrl ||
-                      post.image ||
-                      "/home.jpeg";
+                  const rawImage =
+                    (item.featuredImage && typeof item.featuredImage === "object"
+                      ? item.featuredImage.url || item.featuredImage.thumbnailUrl
+                      : typeof item.featuredImage === "string"
+                      ? item.featuredImage
+                      : null) ||
+                    item.featuredImageUrl ||
+                    item.image ||
+                    "/home.jpeg";
 
-                    const imageUrl = getMediaUrl(rawImage, "/home.jpeg");
+                  const imageUrl = getMediaUrl(rawImage, "/home.jpeg");
 
-                    return (
-                      <motion.article
-                        key={post.id || idx}
-                        layout
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        transition={{ duration: 0.35, delay: idx * 0.03 }}
-                        className="group relative rounded-2xl overflow-hidden bg-white dark:bg-[#161412] border border-[#E5DCCB] dark:border-[#2E2A24] hover:border-[#B88A2B]/60 dark:hover:border-[#C5A059]/60 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
-                      >
-                        <div>
-                          {/* Image Container */}
-                          <div className="relative h-48 w-full overflow-hidden bg-neutral-900">
-                            <Image
-                              src={imageUrl}
-                              alt={title}
-                              fill
-                              sizes="(max-width: 640px) 100vw, 400px"
-                              className="object-cover group-hover:scale-106 transition-transform duration-500"
-                            />
-                            {categoryName && (
-                              <div className="absolute top-3 start-3">
-                                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/20">
-                                  {categoryName}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                  const isOdd = index % 2 === 0;
+                  const initialX = isOdd ? (isRtl ? 50 : -50) : (isRtl ? -50 : 50);
 
-                          {/* Card Content */}
-                          <div className="p-5 space-y-3">
-                            {/* Metadata */}
-                            <div className="flex items-center gap-2.5 text-xs text-[#78716C] dark:text-[#A39B8B] font-mono">
-                              {postDate && (
-                                <span className="flex items-center gap-1">
-                                  <Calendar size={12} className="text-[#B88A2B] dark:text-[#D4AF37]" />
-                                  {postDate}
-                                </span>
-                              )}
-                              <span>•</span>
-                              <span className="flex items-center gap-1">
-                                <Clock size={12} />
-                                {readTime} {dict.minRead}
+                  return (
+                    <motion.article
+                      key={item.id || index}
+                      initial={{ opacity: 0, x: initialX, filter: "blur(8px)" }}
+                      whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1], delay: (index % 2) * 0.1 }}
+                      className="group relative flex flex-col justify-between rounded-3xl overflow-hidden bg-white dark:bg-[#161412] border border-[#E5DCCB] dark:border-[#2E2A24] shadow-md hover:shadow-2xl hover:border-[#C5A059]/60 transition-all duration-500"
+                    >
+                      <div>
+                        {/* Visual Image with Zoom on Hover */}
+                        <Link href={itemUrl} className="block relative h-56 overflow-hidden bg-neutral-900">
+                          <Image
+                            src={imageUrl}
+                            alt={title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+                          {/* Category Tag */}
+                          {catName && (
+                            <div className="absolute top-3 left-3 rtl:left-auto rtl:right-3 flex items-center gap-2 z-10">
+                              <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#B88A2B] text-white shadow-md">
+                                {catName}
                               </span>
                             </div>
+                          )}
 
-                            {/* Title */}
-                            <Link href={postUrl} className="block group/link">
-                              <h3 className="font-serif font-bold text-base text-[#1C1917] dark:text-[#F5F1E8] group-hover/link:text-[#B88A2B] dark:group-hover/link:text-[#D4AF37] transition-colors leading-snug line-clamp-2">
-                                {title}
-                              </h3>
-                            </Link>
-
-                            {/* Excerpt */}
-                            <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#C5BEB3] font-sans line-clamp-2 leading-relaxed">
-                              {excerpt}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Action footer */}
-                        <div className="p-5 pt-3 border-t border-[#E5DCCB]/60 dark:border-[#2E2A24]/60 flex items-center justify-between gap-3">
-                          <Link
-                            href={postUrl}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#B88A2B] dark:text-[#D4AF37] hover:underline"
-                          >
-                            <span>{dict.readMore}</span>
-                            {isRtl ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
-                          </Link>
-
+                          {/* Quick Share Button */}
                           <button
                             type="button"
-                            onClick={(e) => handleShareCard(e, post)}
-                            className="p-1.5 rounded-lg border border-[#E5DCCB] dark:border-[#2E2A24] hover:bg-[#FAF0D7] dark:hover:bg-[#262118] text-[#78716C] dark:text-[#A39B8B] transition-colors cursor-pointer"
+                            onClick={(e) => handleShareCard(e, item)}
+                            className="absolute top-3 right-3 rtl:right-auto rtl:left-3 p-2 rounded-full bg-black/50 hover:bg-[#B88A2B] text-white backdrop-blur-md transition-colors z-10 cursor-pointer"
                             title={isRtl ? "مشاركة" : "Share"}
                           >
-                            {copiedCardId === post.id ? (
-                              <Check size={14} className="text-emerald-600" />
-                            ) : (
-                              <Share2 size={14} />
-                            )}
+                            {copiedCardId === item.id ? <Check size={13} className="text-emerald-400" /> : <Share2 size={13} />}
                           </button>
+                        </Link>
+
+                        {/* Card Content */}
+                        <div className="p-5 sm:p-6 space-y-3">
+                          {/* Date & Reading Time */}
+                          <div className="flex items-center justify-between text-[11px] text-[#78716C] dark:text-[#A39B8B] font-medium">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar size={12} className="text-[#B88A2B] dark:text-[#D4AF37]" />
+                              <span>{formattedDate}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock size={12} />
+                              <span>{readTime} {dict.minRead}</span>
+                            </div>
+                          </div>
+
+                          {/* Title */}
+                          <Link href={itemUrl} className="block">
+                            <h3 className="font-serif font-bold text-lg sm:text-xl leading-snug text-[#1C1917] dark:text-[#F5F1E8] group-hover:text-[#B88A2B] dark:group-hover:text-[#D4AF37] transition-colors duration-200 line-clamp-2">
+                              {title}
+                            </h3>
+                          </Link>
+
+                          {/* Excerpt */}
+                          {excerpt && (
+                            <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#C5BEB3] line-clamp-3 leading-relaxed font-sans">
+                              {excerpt}
+                            </p>
+                          )}
                         </div>
-                      </motion.article>
-                    );
-                  })}
-                </AnimatePresence>
+                      </div>
+
+                      {/* Card Footer CTA */}
+                      <div className="p-5 sm:p-6 pt-0 mt-auto border-t border-[#E5DCCB]/60 dark:border-[#2E2A24]/60 flex items-center justify-between gap-3 text-xs font-bold text-[#B88A2B] dark:text-[#D4AF37]">
+                        <div className="flex items-center gap-1 text-[11px] text-[#78716C] dark:text-[#A39B8B] font-normal">
+                          <Eye size={12} />
+                          <span>{item.viewCount || 1} {dict.views}</span>
+                        </div>
+
+                        <Link
+                          href={itemUrl}
+                          className="inline-flex items-center gap-1.5 group-hover:gap-2.5 transition-all text-xs font-bold cursor-pointer"
+                        >
+                          <span>{dict.readFull}</span>
+                          {isRtl ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
+                        </Link>
+                      </div>
+                    </motion.article>
+                  );
+                })}
               </div>
             )}
 

@@ -91,8 +91,9 @@ export default function Navbar() {
     { name: t("nav.events"), path: "/events" },
   ];
 
-  // Secondary Pages for "More ▾" dropdown
+  // Secondary Pages for "More ▾" dropdown (Q&A before About & Contact)
   const moreNavItems = [
+    { name: t("nav.qa") || (isRtl ? "الأسئلة والأجوبة" : "Questions & Answers"), path: "/qa" },
     { name: t("nav.about"), path: "/about" },
     { name: t("nav.contact"), path: "/contact" },
   ];
@@ -147,6 +148,15 @@ export default function Navbar() {
         cleanPath.startsWith("/events-initiatives/") ||
         cleanPath === "/blog/events-initiatives" ||
         cleanPath.startsWith("/blog/events-initiatives/")
+      );
+    }
+
+    if (itemPath === "/qa") {
+      return (
+        cleanPath === "/qa" ||
+        cleanPath.startsWith("/qa/") ||
+        cleanPath === "/questions" ||
+        cleanPath.startsWith("/questions/")
       );
     }
 
