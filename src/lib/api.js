@@ -548,4 +548,126 @@ export async function updateUserProfile({ name, avatarUrl }) {
   return data.data || data;
 }
 
+// -----------------------------------------------------------------------------
+// QUESTIONS & ANSWERS (Q&A / FATWA HUB)
+// -----------------------------------------------------------------------------
+
+/**
+ * Fetch answered questions with search, topic filtering, pagination, and sorting
+ * @param {Object} [params]
+ * @param {number} [params.page=1]
+ * @param {number} [params.limit=10]
+ * @param {string} [params.category]
+ * @param {string} [params.search]
+ * @param {'newest'|'oldest'|'views'|'helpful'} [params.sort='newest']
+ * @returns {Promise<{ items: Array, total: number, page: number, limit: number, totalPages: number }>}
+ */
+export async function fetchQuestions({
+  page = 1,
+  limit = 10,
+  category,
+  search,
+  sort = "newest",
+} = {}) {
+  const queryParams = new URLSearchParams();
+  queryParams.set("page", String(page));
+  queryParams.set("limit", String(limit));
+  if (category && category !== "ALL") queryParams.set("category", category);
+  if (search && search.trim()) queryParams.set("search", search.trim());
+  if (sort) queryParams.set("sort", sort);
+
+  const res = await fetchApi(`/questions?${queryParams.toString()}`);
+  if (!res) return { items: [], total: 0, page: 1, limit, totalPages: 1 };
+  return {
+    items: Array.isArray(res.items) ? res.items : Array.isArray(res) ? res : [],
+    total: typeof res.total === "number" ? res.total : (res.items || res || []).length,
+    page: res.page || page,
+    limit: res.limit || limit,
+    totalPages: res.totalPages || 1,
+  };
+}
+
+/**
+ * Fetch single answered question detail by slug
+ * @param {string} slug
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchQuestionBySlug(slug) {
+  if (!slug) return null;
+  return fetchApi(`/questions/${encodeURIComponent(slug)}`);
+}
+
+/**
+ * Fetch instant similar question suggestions as user types
+ * @param {string} query
+ * @param {number} [limit=4]
+ * @returns {Promise<Array>}
+ */
+export async function fetchSimilarQuestions(query, limit = 4) {
+  if (!query || query.trim().length < 3) return [];
+  const res = await fetchApi(`/questions/similar?q=${encodeURIComponent(query.trim())}&limit=${limit}`);
+  return Array.isArray(res) ? res : [];
+}
+
+/**
+ * Submit a new question
+ * @param {Object} questionData
+ * @param {string} questionData.titleEn
+ * @param {string} [questionData.titleAr]
+ * @param {string} questionData.contentEn
+ * @param {string} [questionData.contentAr]
+ * @param {string} questionData.categoryId
+ * @param {boolean} [questionData.isAnonymous]
+ * @param {string} [questionData.guestName]
+ * @param {string} [questionData.guestEmail]
+ * @param {string} [questionData.userId]
+ * @returns {Promise<Object>}
+ */
+export async function submitQuestion(questionData) {
+  const token = getAuthToken();
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+  return fetchApi("/questions", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(questionData),
+  });
+}
+
+/**
+ * Vote helpful / unhelpful on an answered question
+ * @param {string} questionId
+ * @param {boolean} [isHelpful=true]
+ * @returns {Promise<Object>}
+ */
+export async function voteQuestionHelpful(questionId, isHelpful = true) {
+  const token = getAuthToken();
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+  return fetchApi(`/questions/${questionId}/helpful`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ isHelpful }),
+  });
+}
+
+/**
+ * Fetch logged-in user's submitted questions & review status
+ * @param {string} userId
+ * @param {number} [page=1]
+ * @param {number} [limit=10]
+ * @returns {Promise<{ items: Array, total: number, totalPages: number }>}
+ */
+export async function fetchUserQuestions(userId, page = 1, limit = 10) {
+  if (!userId) return { items: [], total: 0, totalPages: 1 };
+  const res = await fetchApi(`/questions/user/my-submissions?userId=${encodeURIComponent(userId)}&page=${page}&limit=${limit}`);
+  if (!res) return { items: [], total: 0, totalPages: 1 };
+  return {
+    items: Array.isArray(res.items) ? res.items : [],
+    total: res.total || 0,
+    totalPages: res.totalPages || 1,
+  };
+}
+
+
 
